@@ -6,5 +6,6 @@ package-lock.json
 /icons
 node_modules
 /out
+ddownloader.py
 downloader.py
 version.txt

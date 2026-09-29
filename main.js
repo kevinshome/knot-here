@@ -1,4 +1,5 @@
 const { app, BrowserWindow, systemPreferences } = require('electron')
+const fs = require('fs');
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -6,7 +7,12 @@ const createWindow = () => {
     height: 1500
   })
 
-  win.loadFile('index.html');
+  win.setTitle('knot-here')
+  if (['./version.txt', 'art', 'audio', 'font', 'icons'].map((filePath) => (fs.existsSync(filePath))).every(item => item === true)){
+    win.loadFile('index.html');
+  } else {
+    win.loadFile('nofiles.html')
+  }
 
 //  win.webContents.on('before-input-event', (_, input) => {
 //      if (input.type === 'keyUp' && input.key.toLowerCase() === 'escape'){

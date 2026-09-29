@@ -1,5 +1,6 @@
-const { app, BrowserWindow, systemPreferences } = require('electron')
+const { app, BrowserWindow, systemPreferences, ipcMain } = require('electron')
 const fs = require('fs');
+const path = require('path');
 if (require('electron-squirrel-startup')) app.quit();
 
 const createWindow = () => {
@@ -7,9 +8,16 @@ const createWindow = () => {
     width: 1200,
     height: 1500,
     show: false,
-    //fullscreen: true, # TODO: ONLY impl AFTER IN-GAME EXIT ADDED
+    fullscreen: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      devTools: true
+    },
   })
 
+  
   win.setTitle('....knoT here..')
   if (app.isPackaged || ['./version.txt', 'art', 'audio', 'font', 'icons'].map((filePath) => (fs.existsSync(filePath))).every(item => item === true)){
     win.loadFile('index.html');
@@ -19,6 +27,10 @@ const createWindow = () => {
 
   win.show();
 }
+
+ipcMain.on('quit-game', () => {
+  app.quit(); 
+});
 
 app.whenReady().then(async () => {
   if (process.platform === 'darwin') {

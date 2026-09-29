@@ -6,7 +6,7 @@ module.exports = {
   packagerConfig: {
     name: "knoT here",
     appBundleId: "com.kevinshome.knot-here",
-    appVersion: "5.0.0",
+    appVersion: "5.0.1",
     buildVersion: "Build 2026.29.09",
     appCopyright: "Copyright © 2026 Sony Music Entertainment",
     icon: [

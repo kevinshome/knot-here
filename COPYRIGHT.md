@@ -1,0 +1,1 @@
+All elements of this project Copyright © 2026 Sony Music Entertainment. If you are the copyright holder of these works, and would like this repository taken down, please email noah@kevinsho.me with any and all takedown requests.

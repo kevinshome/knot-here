@@ -1,0 +1,4824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+<title>….knoT here..</title>
+<link rel="icon" href="icons/EFFIGY.png">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://knot-here.world/">
+<meta property="og:title" content="….knoT here..">
+<meta property="og:image" content="https://knot-here.world/art/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="….knoT here..">
+<meta name="twitter:image" content="https://knot-here.world/art/share.jpg">
+
+<style>
+@font-face{font-family:'Eckmann';src:url('font/CAT-Eckmann.ttf') format('truetype');font-weight:400;font-style:normal}
+@font-face{font-family:'Macondo';src:url('font/Macondo-Regular.ttf') format('truetype');font-weight:400;font-style:normal}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--text:#E1C37F;--text-dim:rgba(225,195,127,0.5);--ease:cubic-bezier(0.22,0.61,0.36,1)}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0708;font-family:'Macondo',sans-serif;color:var(--text);cursor:default;-webkit-font-smoothing:antialiased;touch-action:pan-x pan-y;-ms-touch-action:pan-x pan-y}
+#curtain{position:fixed;inset:0;z-index:2000;background:#0a0708;opacity:0;pointer-events:none;transition:opacity 650ms ease}
+#curtain.closing{opacity:1;pointer-events:all}
+#curtain.opening{opacity:0}
+
+#loading-note{
+  
+  position:fixed;inset:0;z-index:3050;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Eckmann',serif;font-weight:300;
+  font-size:11px;letter-spacing:.34em;text-transform:uppercase;
+  color:rgba(225,195,127,.4);
+  opacity:0;pointer-events:none;transition:opacity 700ms ease;
+}
+#loading-note.show{opacity:1}
+
+body.holding #inventory{opacity:0;transition:opacity 400ms ease}
+
+#scene-failed{
+  
+  position:fixed;inset:0;z-index:3250;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;padding:0 32px;text-align:center;
+  background:#000;
+  opacity:0;transition:opacity 600ms ease;
+}
+#scene-failed.show{display:flex}
+#scene-failed.vis{opacity:1}
+
+#scene-failed.finale-fail .sf-back{display:none}
+#scene-failed .sf-note{
+  font-family:'Macondo',serif;font-size:19px;line-height:1.6;
+  color:rgba(225,195,127,.82);
+}
+#scene-failed .sf-sub{
+  font-family:'Eckmann',serif;font-weight:300;
+  font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(225,195,127,.4);margin-bottom:10px;
+}
+#scene-failed .sf-acts{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+#scene-failed button{
+  cursor:pointer;background:rgba(225,195,127,.06);
+  border:1px solid rgba(225,195,127,.4);border-radius:4px;
+  font-family:'Eckmann',serif;font-weight:300;
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(225,195,127,.8);padding:11px 20px;
+  transition:all .35s ease;
+}
+#scene-failed button:hover{
+  color:rgba(240,222,180,.98);border-color:rgba(225,195,127,.85);
+  background:rgba(225,195,127,.14);
+}
+@media(max-width:900px){
+  #scene-failed .sf-note{font-size:16px}
+  #scene-failed button{font-size:9px;padding:10px 16px}
+}
+.screen{position:fixed;inset:0;overflow:hidden}
+#map-screen{z-index:10}
+#zone-screen{z-index:5;display:none}
+#zone-screen.active{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-y}
+#zone-screen.active::-webkit-scrollbar{display:none}
+#world{position:absolute;width:1608px;height:2000px;left:50%;top:50%;transform-origin:center;transform:translate(-50%,-50%) scale(5);transition:transform 2800ms var(--ease);will-change:transform;cursor:grab;filter:blur(12px);overflow:hidden;-webkit-transform:translate3d(-50%,-50%,0) scale(5)}
+#world.revealed{transform:translate(-50%,-50%) scale(1);filter:blur(0px)}
+#world.dragging{cursor:grabbing;transition:none}
+
+#world img.map-art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;-webkit-transform:translateZ(0);transform:translateZ(0)}
+
+.zone{position:absolute;cursor:pointer;z-index:50;background:transparent;
+  pointer-events:none;border:none;
+}
+
+.zone::before{
+  content:'';position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-85%);
+  width:44px;height:60px;
+  background:url('art/PIN.png') center/contain no-repeat;
+  opacity:1;
+  transition:opacity 0.4s ease,transform 0.4s ease,filter 0.4s ease;
+  filter:drop-shadow(0 3px 6px rgba(0,0,0,.55));
+  pointer-events:auto;      
+  cursor:pointer;
+}
+.zone:hover::before{
+  transform:translate(-50%,-90%);
+  filter:drop-shadow(0 5px 10px rgba(0,0,0,.7)) brightness(1.18);
+}
+
+@media(hover:none),(max-width:900px){
+  .zone{pointer-events:all}
+  .zone::before{width:56px;height:77px}
+}
+
+.ambient{position:absolute;pointer-events:none;z-index:45}
+
+.river-shimmer{
+  left:38%;top:18%;width:24%;height:60%;
+  background:linear-gradient(180deg,
+    transparent 0%,
+    rgba(100,160,180,.03) 10%,
+    transparent 20%,
+    rgba(100,160,180,.04) 35%,
+    transparent 45%,
+    rgba(100,160,180,.03) 60%,
+    transparent 70%,
+    rgba(100,160,180,.05) 85%,
+    transparent 100%
+  );
+  animation:riverFlow 12s linear infinite;
+  mix-blend-mode:screen;
+}
+.river-shimmer-2{
+  left:40%;top:20%;width:20%;height:55%;
+  background:linear-gradient(180deg,
+    transparent 0%,
+    rgba(120,180,200,.02) 15%,
+    transparent 30%,
+    rgba(120,180,200,.03) 50%,
+    transparent 65%,
+    rgba(120,180,200,.02) 80%,
+    transparent 100%
+  );
+  animation:riverFlow 18s linear infinite 4s;
+  mix-blend-mode:screen;
+}
+@keyframes riverFlow{
+  0%{transform:translateY(-10%)}
+  100%{transform:translateY(10%)}
+}
+
+#world.blood .river-shimmer{
+  background:linear-gradient(180deg,transparent 0%,rgba(160,20,20,.06) 10%,transparent 20%,rgba(160,20,20,.08) 35%,transparent 45%,rgba(160,20,20,.06) 60%,transparent 70%,rgba(160,20,20,.1) 85%,transparent 100%);
+}
+#world.blood .river-shimmer-2{
+  background:linear-gradient(180deg,transparent 0%,rgba(180,10,10,.04) 15%,transparent 30%,rgba(180,10,10,.06) 50%,transparent 65%,rgba(180,10,10,.04) 80%,transparent 100%);
+}
+
+.swamp-sway{
+  left:15%;top:70%;width:50%;height:22%;
+  background:radial-gradient(ellipse at 50% 50%,rgba(60,80,50,.04),transparent 60%);
+  animation:swampBreathe 8s ease-in-out infinite alternate;
+  transform-origin:50% 100%;
+}
+.swamp-sway-2{
+  left:25%;top:72%;width:35%;height:18%;
+  background:radial-gradient(ellipse at 40% 60%,rgba(80,100,60,.03),transparent 50%);
+  animation:swampBreathe 11s ease-in-out infinite alternate-reverse;
+  transform-origin:40% 100%;
+}
+@keyframes swampBreathe{
+  0%{transform:scaleY(1) skewX(0deg)}
+  100%{transform:scaleY(1.008) skewX(.3deg)}
+}
+
+.temple-fire{
+  left:38%;top:5%;width:6%;height:4%;
+  background:radial-gradient(ellipse at 50% 80%,rgba(255,180,80,.08) 0%,rgba(255,140,50,.03) 40%,transparent 70%);
+  animation:fireFlicker 3s ease-in-out infinite alternate;
+  mix-blend-mode:screen;
+}
+@keyframes fireFlicker{
+  0%{opacity:.5;transform:scale(1) translateY(0)}
+  30%{opacity:.8;transform:scale(1.05) translateY(-2px)}
+  60%{opacity:.6;transform:scale(.98) translateY(1px)}
+  100%{opacity:.9;transform:scale(1.03) translateY(-1px)}
+}
+
+.cistern-glow{
+  left:65%;top:80%;width:12%;height:8%;
+  background:radial-gradient(circle at 50% 50%,rgba(80,120,140,.06) 0%,transparent 60%);
+  animation:cisternPulse 6s ease-in-out infinite alternate;
+  mix-blend-mode:screen;
+}
+@keyframes cisternPulse{
+  0%{opacity:.3;transform:scale(1)}
+  100%{opacity:.8;transform:scale(1.1)}
+}
+
+#grain{position:fixed;inset:0;z-index:3000;pointer-events:none;opacity:.025;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px 200px}
+#vignette{position:fixed;inset:0;z-index:2999;pointer-events:none;background:radial-gradient(ellipse 60% 55% at 50% 50%,transparent 35%,rgba(10,7,8,.5) 65%,rgba(10,7,8,.85) 100%);transition:opacity 1600ms ease}
+#vignette.hidden{opacity:0}
+
+#zone-screen{background:#0a0708}
+#dialogue-wrap{
+  position:fixed;bottom:0;left:0;right:0;z-index:10;
+  display:flex;flex-direction:column;align-items:center;
+  padding:0 20px 20px;pointer-events:none;
+  max-height:60vh;
+  transition:opacity 600ms ease;
+}
+#dialogue-wrap.dim{opacity:0}
+
+#dialogue-history{
+  display:none;
+  width:100%;max-width:620px;overflow-y:auto;scrollbar-width:none;
+  flex-direction:column;gap:10px;padding:12px 0;
+  mask-image:linear-gradient(transparent 0%,black 12%,black 100%);
+  -webkit-mask-image:linear-gradient(transparent 0%,black 12%,black 100%);
+  pointer-events:all;
+}
+#dialogue-history::-webkit-scrollbar{display:none}
+.msg{font-family:'Macondo',serif;font-size:16px;line-height:1.8;max-width:620px;padding:0 8px}
+.msg.npc{color:rgba(225,195,127,.7)}
+.msg.user{color:rgba(225,195,127,.55);font-style:italic;text-align:right}
+.msg.npc .speaker{
+  font-family:'Eckmann',serif;font-weight:600;font-size:11px;
+  letter-spacing:.25em;text-transform:uppercase;
+  color:rgba(225,195,127,.5);margin-bottom:6px;display:block;
+}
+
+.msg.action,#char-text.action{
+  font-family:'Macondo',serif;font-style:normal;
+  color:rgba(225,195,127,.92);
+  letter-spacing:.02em;
+}
+.giver,.given-item{font-weight:700;color:rgba(240,215,155,1)}
+#dialogue-box{
+  position:relative;
+  width:100%;max-width:620px;
+  background:linear-gradient(180deg,rgba(20,16,14,.85),rgba(15,12,10,.95));
+  border:1px solid rgba(225,195,127,.08);
+  border-radius:6px;padding:12px 16px 10px;
+  pointer-events:all;
+  box-shadow:0 -10px 40px rgba(0,0,0,.5);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+
+#dialogue-box::after{
+  content:'';position:absolute;inset:-1px;pointer-events:none;opacity:.75;
+  background-image:
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F),
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F),
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F),
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F);
+  background-repeat:no-repeat;
+  background-position:top left,top left,top right,top right,bottom left,bottom left,bottom right,bottom right;
+  background-size:20px 1.5px,1.5px 20px,20px 1.5px,1.5px 20px,20px 1.5px,1.5px 20px,20px 1.5px,1.5px 20px;
+}
+#char-name{
+  font-family:'Eckmann',serif;font-weight:600;font-size:12px;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(225,195,127,.55);margin-bottom:7px;
+}
+#char-text{
+  font-family:'Macondo',serif;font-size:17px;line-height:1.75;
+  color:rgba(225,195,127,.7);min-height:28px;margin-bottom:10px;
+}
+
+#char-text:empty{display:none;min-height:0;margin-bottom:0}
+#char-name:empty{display:none;margin-bottom:0}
+#char-text .cursor{
+  display:inline-block;width:2px;height:14px;background:rgba(225,195,127,.4);
+  margin-left:2px;animation:cursorBlink 1s step-end infinite;vertical-align:middle;
+}
+@keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
+#input-row{
+  display:flex;align-items:center;gap:10px;
+  border-top:1px solid rgba(225,195,127,.06);
+  padding-top:8px;
+}
+#input-prompt{
+  font-family:'Eckmann',serif;font-size:18px;
+  color:rgba(225,195,127,.45);flex-shrink:0;
+}
+#user-input{
+  flex:1;background:none;border:none;outline:none;
+  font-family:'Macondo',serif;font-size:16px;
+  color:rgba(225,195,127,.6);caret-color:rgba(225,195,127,.4);
+  letter-spacing:.02em;
+}
+#user-input::placeholder{color:rgba(225,195,127,.42)}
+#user-input:disabled{opacity:.3}
+
+#wish-send{
+  flex-shrink:0;cursor:pointer;
+  font-family:'Eckmann',serif;font-weight:300;font-size:10px;
+  letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(225,195,127,.75);
+  background:rgba(225,195,127,.06);
+  border:1px solid rgba(225,195,127,.4);border-radius:4px;
+  padding:7px 14px;
+  transition:all .35s ease;
+}
+#wish-send:hover{
+  color:rgba(240,222,180,.98);
+  border-color:rgba(225,195,127,.85);
+  background:rgba(225,195,127,.14);
+}
+#wish-send:disabled{opacity:.25;cursor:default}
+
+#dialogue-wrap.has-input #zone-return{
+  margin-top:26px;
+  opacity:.5;
+}
+#dialogue-wrap.has-input #zone-return:hover{opacity:1}
+@media(max-width:900px){
+  #wish-send{font-size:9px;padding:7px 11px;letter-spacing:.18em}
+  #dialogue-wrap.has-input #zone-return{margin-top:20px}
+}
+
+#choices{
+  display:none;flex-direction:column;gap:7px;
+  position:relative;
+  width:100%;max-width:620px;
+  margin-top:10px;
+  padding:10px 16px;
+  background:linear-gradient(180deg,rgba(20,16,14,.85),rgba(15,12,10,.95));
+  border:1px solid rgba(225,195,127,.08);
+  border-radius:6px;
+  pointer-events:all;
+  box-shadow:0 -10px 40px rgba(0,0,0,.5);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+#choices.active{display:flex}
+.choice-btn{
+  position:relative;
+  background:none;border:1px solid rgba(225,195,127,.1);
+  color:rgba(225,195,127,.5);
+  font-family:'Macondo',serif;font-size:15px;line-height:1.6;
+  padding:8px 14px;cursor:pointer;text-align:left;
+  border-radius:4px;
+  transition:all 0.4s ease;
+}
+.choice-btn:hover{
+  border-color:rgba(225,195,127,.3);
+  color:rgba(225,195,127,.85);
+  background:rgba(225,195,127,.04);
+  padding-left:22px;
+}
+.choice-btn::before{content:'› ';opacity:.4}
+
+.choice-btn::after{
+  content:'';position:absolute;inset:-1px;pointer-events:none;opacity:.3;
+  transition:opacity 0.4s ease;
+  background-image:
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F),
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F),
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F),
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F);
+  background-repeat:no-repeat;
+  background-position:top left,top left,top right,top right,bottom left,bottom left,bottom right,bottom right;
+  background-size:9px 1.5px,1.5px 9px,9px 1.5px,1.5px 9px,9px 1.5px,1.5px 9px,9px 1.5px,1.5px 9px;
+}
+.choice-btn:hover::after{opacity:.9}
+.choice-btn:hover::before{opacity:.8}
+@media(max-width:900px){
+  #dialogue-wrap{padding:0 12px 14px;max-height:55vh}
+  #dialogue-box{padding:10px 13px 8px}
+  #choices{padding:9px 13px;margin-top:8px;gap:6px}
+  #char-text{font-size:15px}
+  .msg{font-size:14px}
+  #zone-return{font-size:9px;padding:10px 4px;margin-top:6px}
+  #leave-note{font-size:12px}
+  #scene-intro{padding:0 26px}
+  #scene-intro .si-note{font-size:16px}
+}
+#zone-scrim{position:fixed;left:0;right:0;bottom:0;height:42vh;z-index:6;pointer-events:none;background:linear-gradient(180deg,transparent 0%,rgba(10,7,8,.32) 45%,rgba(10,7,8,.68) 100%)}
+#zone-scene{position:fixed;inset:0;z-index:1;opacity:0;transform:scale(1.03);transition:opacity 1000ms ease 100ms,transform 2600ms ease;pointer-events:none;overflow:hidden}
+
+#zone-frame{position:absolute;inset:0;transition:transform 1500ms cubic-bezier(.32,0,.24,1),transform-origin 1500ms cubic-bezier(.32,0,.24,1)}
+#zone-screen.entered #zone-scene{opacity:1;transform:scale(1)}
+#zone-scene svg{position:absolute;inset:0;width:100%;height:100%}
+#zone-scene .scene-layer{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+
+video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
+video::-webkit-media-controls{display:none!important}
+#zone-scene .scene-layer.pending{opacity:0}
+#zone-scene .scene-layer{transition:opacity 500ms ease}
+
+#zone-scene .scene-layer.faded{opacity:0;transition:opacity 1600ms ease}
+
+#zone-frame.croc-focus{
+  transform:scale(1.1);
+  transform-origin:50% 68%;
+  transition:transform 1500ms cubic-bezier(.32,0,.24,1);
+}
+
+#zone-frame.craft-focus{
+  transform:scale(1.14);
+  transform-origin:50% 44%;
+  transition:transform 2000ms cubic-bezier(.32,0,.24,1);
+}
+
+#zone-frame.scene-lunge{
+  transform-origin:50% 68%;
+  animation:lungeScene 1800ms cubic-bezier(.15,0,.3,1) forwards;
+}
+#zone-frame.scene-lunge.croc-focus{animation-name:sceneLungeZoomed}
+@keyframes lungeScene{
+  0%   {transform:scale(1)      translate(0,0)}
+  6%   {transform:scale(1.16)   translate(-13px,5px)}
+  12%  {transform:scale(1.17)   translate(11px,-6px)}
+  19%  {transform:scale(1.19)   translate(-10px,-3px)}
+  26%  {transform:scale(1.2)    translate(8px,6px)}
+  34%  {transform:scale(1.22)   translate(-6px,-4px)}
+  44%  {transform:scale(1.23)   translate(5px,3px)}
+  56%  {transform:scale(1.25)   translate(-3px,-2px)}
+  70%  {transform:scale(1.26)   translate(2px,2px)}
+  100% {transform:scale(1.28)   translate(0,0)}
+}
+@keyframes sceneLungeZoomed{
+  0%   {transform:scale(1.1)    translate(0,0)}
+  6%   {transform:scale(1.24)   translate(-13px,5px)}
+  12%  {transform:scale(1.25)   translate(11px,-6px)}
+  19%  {transform:scale(1.27)   translate(-10px,-3px)}
+  26%  {transform:scale(1.28)   translate(8px,6px)}
+  34%  {transform:scale(1.3)    translate(-6px,-4px)}
+  44%  {transform:scale(1.31)   translate(5px,3px)}
+  56%  {transform:scale(1.33)   translate(-3px,-2px)}
+  70%  {transform:scale(1.34)   translate(2px,2px)}
+  100% {transform:scale(1.36)   translate(0,0)}
+}
+
+#scene-blackout{
+  position:fixed;inset:0;z-index:9;background:#000;
+  opacity:0;pointer-events:none;
+}
+#scene-blackout.going{opacity:1;transition:opacity 1500ms cubic-bezier(.5,0,.75,0)}
+
+#scene-blackout.instant.going{transition:none}
+
+body.scene-dark #inventory{opacity:0;transition:opacity 1800ms cubic-bezier(.5,0,.75,0)}
+@media (prefers-reduced-motion:reduce){
+  #zone-frame,#zone-frame.croc-focus,#zone-frame.craft-focus{transition:none}
+  #zone-frame.scene-lunge,#zone-frame.scene-lunge.croc-focus{animation:none}
+  #scene-blackout.going{transition:opacity 600ms linear}
+}
+
+#zone-scene .scene-layer.surging{animation:shadowShake 900ms ease-out}
+
+#zone-scene .scene-layer.leaving{
+  animation:shadowShake 900ms ease-out;
+  opacity:0;transition:opacity 900ms ease-out;
+}
+@keyframes shadowShake{
+  0%  {transform:translateX(0)}
+  8%  {transform:translateX(-4px)}
+  18% {transform:translateX(4px)}
+  28% {transform:translateX(-3px)}
+  38% {transform:translateX(3px)}
+  48% {transform:translateX(-2px)}
+  58% {transform:translateX(2px)}
+  68% {transform:translateX(-1px)}
+  100%{transform:translateX(0)}
+}
+
+#zone-scene .grabbable{pointer-events:none;cursor:pointer}
+#zone-scene .grabbable.live{pointer-events:auto;animation:grabPulse 2.2s ease-in-out infinite}
+#zone-scene .grabbable.live:hover{animation-duration:1.1s}
+@keyframes grabPulse{
+  0%,100%{filter:drop-shadow(0 0 4px rgba(225,195,127,.25)) brightness(1)}
+  50%{filter:drop-shadow(0 0 18px rgba(225,195,127,.75)) brightness(1.22)}
+}
+
+#zone-scene .grabbable.taken{animation:grabTake 760ms ease-out forwards}
+@keyframes grabTake{
+  0%  {transform:translateX(0)    ;opacity:1;filter:drop-shadow(0 0 14px rgba(225,195,127,.7)) brightness(1.2)}
+  8%  {transform:translateX(-4px) }
+  18% {transform:translateX(4px)  }
+  28% {transform:translateX(-3px) }
+  38% {transform:translateX(3px)  }
+  48% {transform:translateX(-2px) }
+  58% {transform:translateX(2px)  ;opacity:1}
+  68% {transform:translateX(0)    }
+  100%{transform:translateX(0) scale(.94);opacity:0;filter:drop-shadow(0 0 0 rgba(225,195,127,0)) brightness(1)}
+}
+
+@media(min-width:901px){
+  #zone-scene{max-width:min(100%,84vh);margin-left:auto;margin-right:auto}
+  
+  #map-screen{max-width:min(100%,84vh);margin-left:auto;margin-right:auto}
+  
+  #vignette,#zone-scrim{max-width:min(100%,calc(84vh * 1.04));margin-left:auto;margin-right:auto}
+}
+
+#scene-intro{
+  
+  position:fixed;inset:0;z-index:11;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 40px;pointer-events:none;
+  opacity:0;transition:opacity 900ms ease;
+  
+  background:rgba(10,7,8,.82);
+}
+#scene-intro.vis{opacity:1}
+
+#scene-intro .si-go{
+  position:absolute;left:0;right:0;bottom:14vh;text-align:center;
+  font-family:'Eckmann',serif;font-size:10px;letter-spacing:.28em;
+  text-transform:uppercase;color:rgba(225,195,127,.32);
+  text-shadow:0 2px 12px rgba(0,0,0,.9);
+  opacity:0;transition:opacity 1200ms ease;
+}
+#scene-intro .si-go.show{opacity:1}
+#scene-intro .si-note{
+  max-width:560px;text-align:center;
+  font-family:'Macondo',serif;font-style:italic;
+  font-size:18px;line-height:1.9;
+  color:rgba(225,195,127,.75);
+  text-shadow:0 2px 18px rgba(0,0,0,.95),0 0 46px rgba(0,0,0,.8);
+}
+#zone-content-wrap{position:relative;z-index:5;min-height:100%;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px}
+#zone-content{text-align:center;max-width:540px}
+#zone-content>*{opacity:0;transform:translateY(14px);transition:opacity 2000ms ease,transform 2000ms ease}
+#zone-screen.entered #zone-content>*{opacity:1;transform:translateY(0)}
+#zone-screen.entered #zone-content>*:nth-child(1){transition-delay:500ms}
+#zone-screen.entered #zone-content>*:nth-child(2){transition-delay:700ms}
+#zone-screen.entered #zone-content>*:nth-child(3){transition-delay:900ms}
+#zone-screen.entered #zone-content>*:nth-child(4){transition-delay:1100ms}
+#zone-screen.entered #zone-content>*:nth-child(5){transition-delay:1400ms}
+#zone-screen.entered #zone-content>*:nth-child(6){transition-delay:1800ms}
+.zi{width:80px;height:80px;margin:0 auto 44px}
+.zt{font-family:'Eckmann',serif;font-weight:300;font-size:42px;letter-spacing:.2em;text-transform:lowercase;color:rgba(225,195,127,.7);margin-bottom:12px}
+.zs{font-family:'Macondo',serif;font-style:italic;font-size:14px;letter-spacing:.12em;color:rgba(225,195,127,.22);margin-bottom:52px}
+.zd{width:40px;height:1px;margin:0 auto 52px;background:rgba(225,195,127,.1)}
+.zb{font-family:'Macondo',serif;font-size:17px;line-height:2.1;color:rgba(225,195,127,.48);margin-bottom:40px}
+.zl{font-family:'Eckmann',serif;font-style:italic;font-weight:300;font-size:15px;line-height:2;color:rgba(225,195,127,.18);border-top:1px solid rgba(225,195,127,.05);padding-top:32px;max-width:420px;margin:0 auto}
+
+#advance-hint{
+  display:none;text-align:right;
+  font-size:13px;line-height:1;color:rgba(225,195,127,.55);
+  margin-top:4px;padding-right:2px;
+  animation:advanceNudge 1.4s ease-in-out infinite;
+}
+#advance-hint.show{display:block}
+@keyframes advanceNudge{
+  0%,100%{opacity:.35;transform:translateY(0)}
+  50%{opacity:.9;transform:translateY(3px)}
+}
+
+#leave-note{
+  display:none;text-align:center;
+  font-family:'Macondo',serif;font-size:14px;line-height:1.7;
+  color:rgba(225,195,127,.5);
+  border-top:1px solid rgba(225,195,127,.1);
+  margin-top:12px;padding-top:12px;
+}
+#leave-note.show{display:block}
+
+#leave-note.offer{color:rgba(240,215,155,.92)}
+
+#zone-return{
+  display:none;width:100%;max-width:620px;
+  background:linear-gradient(180deg,rgba(20,16,14,.85),rgba(15,12,10,.95));
+  border:none;border-radius:6px;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  font-family:'Eckmann',serif;font-weight:300;font-size:11px;
+  letter-spacing:.25em;color:rgba(225,195,127,.55);
+  cursor:pointer;padding:12px 4px;margin-top:8px;text-align:center;
+  opacity:0;pointer-events:none;
+  transition:color 800ms ease,opacity 1800ms ease;
+}
+#zone-return.show{display:block;opacity:1;pointer-events:all}
+#zone-return:hover{color:rgba(225,195,127,.95)}
+#zone-idx{position:fixed;bottom:36px;right:40px;z-index:100;font-family:'Eckmann',serif;font-weight:300;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:rgba(225,195,127,.08);opacity:0;transition:opacity 2000ms ease 1200ms}
+
+#overseer{position:fixed;inset:0;z-index:3100;display:flex;align-items:center;justify-content:center;background:#000;opacity:1;transition:opacity 2800ms ease;pointer-events:all}
+#overseer.hidden{opacity:0;pointer-events:none}
+#dialog{text-align:center;max-width:400px;padding:0 24px}
+#dialog-text{font-family:'Macondo',sans-serif;font-weight:400;font-size:20px;line-height:1.7;letter-spacing:.04em;color:rgba(225,195,127,.8);margin-bottom:48px;opacity:0;transform:translateY(8px);transition:opacity 2000ms ease,transform 2000ms ease}
+#dialog-text.vis{opacity:1;transform:translateY(0)}
+.d-choices{display:flex;gap:48px;justify-content:center;opacity:0;transform:translateY(8px);transition:opacity 2000ms ease 600ms,transform 2000ms ease 600ms}
+.d-choices.vis{opacity:1;transform:translateY(0)}
+
+#sun-letter{
+  position:fixed;inset:0;z-index:3400;
+  background:#000;color:#eadbb9;
+  
+  font-family:'Macondo',serif;
+  
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;
+  justify-content:safe center;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;touch-action:pan-y;
+  padding:1.2rem 1rem;
+  opacity:1;transition:opacity 1400ms ease;
+}
+#sun-letter.gone{opacity:0;pointer-events:none}
+.sl-stage{width:100%;display:grid;justify-items:center;flex:0 0 auto}
+
+.sl-mirror{width:min(92vw,calc((100svh - 178px) * 1152 / 2361),560px);aspect-ratio:1152/2361;position:relative}
+.sl-frame{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;z-index:2}
+
+.sl-mirror{transform-origin:50% 62%;transition:transform 3000ms cubic-bezier(.33,0,.67,1)}
+#sun-letter.closing{overflow:hidden}
+#sun-letter.closing .sl-mirror{transform:scale(2)}
+
+.sl-below{transition:opacity 900ms ease}
+#sun-letter.closing .sl-below{opacity:0;pointer-events:none}
+
+.sl-glass{position:absolute;left:21.3542%;top:38.6277%;width:57.6389%;height:47.6493%;overflow:hidden;isolation:isolate;background:#080907}
+#sl-reflection{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(-1)}
+#sl-text{position:absolute;left:50%;top:16%;width:100%;height:auto;aspect-ratio:2/3;transform:translate(-50%,-50%);pointer-events:none}
+#sl-reflection,#sl-text{opacity:0;transition:opacity 1400ms ease}
+.sl-stage[data-state="revealing"] #sl-reflection,.sl-stage[data-state="revealing"] #sl-text{opacity:1}
+
+#sl-narration{position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none}
+.sl-invitation{position:absolute;inset:11% 7%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:.8rem}
+.sl-stage[data-state="revealing"] .sl-invitation,.sl-stage[data-state="fading"] .sl-invitation{opacity:0;pointer-events:none;visibility:hidden}
+#sl-begin{color:#e5d5b5;border:0;background:transparent;font:inherit;cursor:pointer;padding:.9rem .2rem;min-height:44px;-webkit-tap-highlight-color:transparent}
+#sl-begin:disabled{cursor:wait}
+.sl-play{display:grid;place-items:center;width:4.5rem;height:4.5rem;margin:0 auto 1rem;background:linear-gradient(130deg,#97701e,#cda345 65%,#b58a2f);border:1px solid #d1ab4d;border-radius:4px;box-shadow:inset 2px 2px 0 #f4d47730,inset -2px -2px 0 #67451055,0 3px 0 #624713}
+.sl-play::after{content:"";display:block;width:1rem;height:1.35rem;background:#fff1ca;clip-path:polygon(0 0,100% 50%,0 100%);transform:translateX(2px)}
+
+.sl-hint{display:block;margin-top:.7rem;color:#ab9e86;font-family:'Macondo',serif;font-size:1rem;letter-spacing:.03em;line-height:1.6}
+#sl-message{font:1.05rem/1.5 'Macondo',serif;letter-spacing:.03em;margin:0;color:#c7bda8}
+#sl-message:empty{display:none}
+.sl-below{margin-top:.1rem;text-align:center}
+.sl-controls{min-height:2.75rem;display:flex;align-items:center;justify-content:center}
+
+#sl-skip{opacity:0;visibility:hidden;transition:opacity 1600ms ease,visibility 0s linear 1600ms}
+#sun-letter.offer-skip #sl-skip{opacity:1;visibility:visible;transition:opacity 1600ms ease}
+#sl-skip{font:1rem/1.5 'Macondo',serif;letter-spacing:.04em;min-height:44px;background:transparent;color:#c4b9a4;border:none;padding:.5rem 1rem;cursor:pointer;text-decoration:underline;text-underline-offset:.3em;-webkit-tap-highlight-color:transparent}
+.sl-privacy{margin:.5rem 0 0;font:.9rem/1.7 'Macondo',serif;letter-spacing:.03em;color:#938c7d}
+#sun-letter [hidden]{display:none!important}
+@media (max-width:600px){
+  #sun-letter{padding-inline:.25rem}
+  .sl-invitation{inset:9% 6%;gap:.3rem}
+  .sl-hint{font-size:.95rem;margin-top:.35rem}
+  #sl-message{font-size:.95rem}
+}
+@media (max-height:520px) and (orientation:landscape){
+  #sun-letter{padding-block:.25rem}
+  .sl-mirror{width:min(62vw,340px)}
+  .sl-below{margin-top:0}
+  .sl-privacy{margin-top:0}
+}
+@media (prefers-reduced-motion:reduce){
+  #sun-letter,#sl-reflection,#sl-text{transition-duration:0ms}
+  .sl-mirror{transition:none}
+  #sun-letter.closing .sl-mirror{transform:none}
+}
+
+#footer{
+  position:absolute;left:0;right:0;bottom:0;
+  padding:0 24px 22px;
+  text-align:center;
+  font-family:'Eckmann',serif;font-weight:300;
+  font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  line-height:2.1;
+  color:rgba(225,195,127,.92);
+  
+  opacity:0;transition:opacity 2400ms ease 1400ms;
+}
+#overseer.lit #footer{opacity:.9}
+
+#footer .f-links{
+  display:flex;flex-wrap:wrap;
+  justify-content:center;align-items:center;
+  margin-top:5px;
+}
+#footer a{
+  color:#E1C37F;text-decoration:none;
+  transition:color 500ms ease;
+}
+#footer a:hover{color:#FBF1DA}
+
+#footer i{font-style:normal;padding:0 7px;color:rgba(225,195,127,.55)}
+@media(max-width:900px){
+  #footer{font-size:8px;letter-spacing:.1em;padding-bottom:16px;line-height:2}
+  #footer i{padding:0 4px}
+}
+.ch-btn{position:relative;background:none;border:1px solid rgba(225,195,127,.15);color:rgba(225,195,127,.6);font-family:'Eckmann',serif;font-weight:300;font-size:15px;letter-spacing:.2em;padding:12px 32px;cursor:pointer;transition:all 1200ms ease;text-transform:lowercase}
+.ch-btn:hover{border-color:rgba(225,195,127,.35);color:rgba(225,195,127,.9);background:rgba(225,195,127,.03)}
+
+.ch-btn::after{
+  content:'';position:absolute;inset:-1px;pointer-events:none;opacity:.35;
+  transition:opacity 1200ms ease;
+  background-image:
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F),
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F),
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F),
+    linear-gradient(#E1C37F,#E1C37F),linear-gradient(#E1C37F,#E1C37F);
+  background-repeat:no-repeat;
+  background-position:top left,top left,top right,top right,bottom left,bottom left,bottom right,bottom right;
+  background-size:11px 1.5px,1.5px 11px,11px 1.5px,1.5px 11px,11px 1.5px,1.5px 11px,11px 1.5px,1.5px 11px;
+}
+.ch-btn:hover::after{opacity:1}
+#refuse{position:fixed;inset:0;z-index:900;background:#0a0708;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 3000ms ease}
+#refuse.vis{opacity:1;pointer-events:all}
+#refuse span{font-family:'Eckmann',serif;font-weight:300;font-size:18px;color:rgba(225,195,127,.3);letter-spacing:.1em}
+@media(max-width:900px){
+    #dialog-text{font-size:17px}
+  .ch-btn{font-size:13px;padding:10px 24px}
+  .zt{font-size:28px;letter-spacing:.15em}
+  .zb{font-size:15px}
+  #zone-idx{bottom:24px;right:24px}
+  #zone-content-wrap{justify-content:flex-start;padding-top:110px;padding-bottom:100px;min-height:auto}
+  #inventory{top:18px;right:16px;gap:6px}
+  .inv-slot{width:44px;height:44px}
+  .inv-slot .slot-label{font-size:8px}
+  .inv-slot .slot-icon{width:26px;height:26px}
+}
+
+#inventory{
+  position:fixed;top:30px;right:40px;z-index:3001;
+  display:flex;gap:8px;align-items:center;
+  opacity:0;transition:opacity 1800ms ease;
+  pointer-events:none;
+}
+#inventory.visible{opacity:1}
+#inventory.hidden{opacity:0!important;transition:opacity 800ms ease}
+.inv-slot{
+  position:relative;
+  width:52px;height:52px;
+  border:1px solid rgba(225,195,127,.55);
+  border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  
+  background:#E1C37F;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  transition:border-color 600ms ease,background 600ms ease;
+}
+.inv-slot.filled{border-color:rgba(225,195,127,.85);background:#E1C37F}
+
+.inv-slot::after{
+  content:'';position:absolute;inset:-1px;pointer-events:none;opacity:.3;
+  transition:opacity 600ms ease;
+  background-image:
+    linear-gradient(#3A2E1A,#3A2E1A),linear-gradient(#3A2E1A,#3A2E1A),
+    linear-gradient(#3A2E1A,#3A2E1A),linear-gradient(#3A2E1A,#3A2E1A),
+    linear-gradient(#3A2E1A,#3A2E1A),linear-gradient(#3A2E1A,#3A2E1A),
+    linear-gradient(#3A2E1A,#3A2E1A),linear-gradient(#3A2E1A,#3A2E1A);
+  background-repeat:no-repeat;
+  background-position:top left,top left,top right,top right,bottom left,bottom left,bottom right,bottom right;
+  background-size:7px 1.5px,1.5px 7px,7px 1.5px,1.5px 7px,7px 1.5px,1.5px 7px,7px 1.5px,1.5px 7px;
+}
+.inv-slot.filled::after{opacity:.7}
+.inv-slot.match-slot{border-color:rgba(225,195,127,.3)}
+.inv-slot .slot-label{
+  font-family:'Eckmann',serif;font-size:9px;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(40,30,18,.62);text-align:center;
+  line-height:1.3;padding:4px;word-break:break-word;
+  white-space:pre-line;
+}
+.inv-slot.match-slot.filled .slot-label{color:rgba(40,30,18,.8)}
+.inv-slot.filled .slot-label{color:rgba(40,30,18,.85)}
+.inv-slot .slot-icon{-webkit-user-drag:none;user-drag:none;pointer-events:none;width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(60,45,20,.35))}
+
+@keyframes slotLeave{
+  0%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}
+  100%{opacity:0;transform:scale(.5) translateY(-14px);filter:blur(3px)}
+}
+.inv-slot .leaving{animation:slotLeave 500ms cubic-bezier(.4,0,.6,1) forwards;pointer-events:none}
+
+body.finale #dialogue-wrap,
+body.finale #inventory,
+body.finale #zone-return,
+body.finale #zone-scrim,
+body.finale #leave-note,
+body.finale #advance-hint{
+  opacity:0!important;pointer-events:none!important;
+  transition:opacity 900ms ease;
+}
+#kk-stage{position:fixed;inset:0;z-index:2500;pointer-events:none}
+
+#kk-video{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;opacity:0;
+  
+  background:transparent;
+}
+#kk-video.vis{opacity:1}
+
+body.finale-video #zone-scene{opacity:0!important;transition:none!important}
+@media(min-width:901px){
+  
+  #kk-video{max-width:min(100%,84vh);margin-left:auto;margin-right:auto}
+}
+#kk-lines{position:absolute;inset:0}
+.kk-line{
+  position:absolute;
+  
+  max-width:min(58vw,380px);
+  box-sizing:border-box;
+  font-family:'Macondo',serif;font-size:clamp(17px,2.4vw,26px);line-height:1.5;
+  color:rgba(240,222,180,.96);text-align:center;
+  text-shadow:0 2px 20px rgba(0,0,0,.95),0 0 44px rgba(0,0,0,.85);
+  opacity:0;filter:blur(0);
+  transition:opacity 260ms ease,filter 900ms ease;
+  will-change:opacity,filter;
+}
+.kk-line.vis{opacity:1}
+.kk-line.fading{opacity:0;filter:blur(7px);transition-duration:1100ms}
+
+#kk-outro{
+  position:absolute;inset:0;
+  opacity:0;pointer-events:none;
+  transition:opacity 1600ms ease;
+}
+
+#kk-outro .kk-album{
+  position:absolute;left:0;right:0;bottom:0;
+  display:flex;flex-direction:column;align-items:center;
+  gap:14px;padding:0 20px 3.5vh;
+}
+@media(max-width:900px){
+  #kk-outro .kk-album{gap:10px;padding-bottom:3vh}
+}
+#kk-outro.vis{opacity:1;pointer-events:auto}
+
+#restart-run{
+  
+  position:fixed;top:14px;right:16px;z-index:3000;
+  background:none;border:none;cursor:pointer;
+  
+  font-family:'Macondo',sans-serif;font-size:clamp(12px,1.4vw,14px);
+  letter-spacing:.04em;
+  
+  color:rgba(240,222,180,.6);
+  text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 10px rgba(0,0,0,.7);
+  padding:8px 12px;
+  opacity:0;pointer-events:none;
+  transition:opacity 1200ms ease,color .4s ease;
+}
+
+@media(min-width:901px){
+  
+  #restart-run{right:calc(50% - min(100%,84vh)/2 + 16px)}
+}
+#restart-run:hover{color:#fff}
+
+body.postgame.on-map #restart-run{opacity:1;pointer-events:auto}
+
+body.veiled #restart-run{opacity:0;pointer-events:none}
+
+#kk-outro .kk-back{
+  margin-top:2px;
+  white-space:nowrap;
+  background:none;border:none;cursor:pointer;
+  font-family:'Eckmann',serif;font-size:clamp(10px,1.2vw,12px);
+  letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(240,222,180,.45);
+  padding:8px 12px;
+  opacity:0;pointer-events:none;
+  transition:opacity 1400ms ease,color .4s ease;
+}
+#kk-outro .kk-back.vis{opacity:1;pointer-events:auto}
+#kk-outro .kk-back:hover{color:rgba(240,222,180,.9)}
+
+#item-modal{
+  position:fixed;inset:0;z-index:3200;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(6,4,5,.82);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  opacity:0;transition:opacity 320ms ease;
+}
+#item-modal.open{display:flex}
+#item-modal.vis{opacity:1}
+#item-modal .im-card{
+  display:flex;flex-direction:column;align-items:center;
+  padding:34px 42px 26px;min-width:250px;max-width:88vw;
+  background:linear-gradient(180deg,rgba(24,19,16,.96),rgba(16,12,10,.98));
+  border:1px solid rgba(225,195,127,.28);border-radius:8px;
+  box-shadow:0 18px 60px rgba(0,0,0,.7);
+  transform:translateY(10px) scale(.97);
+  transition:transform 380ms cubic-bezier(.2,.7,.3,1);
+}
+#item-modal.vis .im-card{transform:translateY(0) scale(1)}
+#item-modal .im-art{
+  width:132px;height:132px;object-fit:contain;
+  margin-bottom:20px;
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.65));
+}
+#item-modal .im-name{
+  font-family:'Eckmann',serif;font-size:17px;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(225,195,127,.95);
+  text-align:center;margin-bottom:12px;white-space:pre-line;line-height:1.4;
+}
+#item-modal .im-desc{
+  font-family:'Macondo',serif;font-size:15px;line-height:1.65;
+  color:rgba(225,195,127,.62);text-align:center;
+  max-width:270px;margin-bottom:22px;
+}
+#item-modal .im-desc:empty{display:none}
+
+#item-modal.no-buttons .im-actions{display:none}
+#item-modal.no-buttons .im-card{cursor:pointer}
+#item-modal.no-buttons .im-desc{margin-bottom:4px}
+#item-modal .im-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+#item-modal button{
+  background:none;border:1px solid rgba(225,195,127,.3);
+  color:rgba(225,195,127,.75);
+  font-family:'Eckmann',serif;font-size:12px;letter-spacing:.2em;
+  text-transform:uppercase;padding:10px 22px;border-radius:4px;
+  cursor:pointer;transition:all .3s ease;
+}
+#item-modal button:hover{border-color:rgba(225,195,127,.7);color:rgba(240,215,155,1);background:rgba(225,195,127,.07)}
+#item-modal .im-use{display:none}
+#item-modal .im-use.show{display:inline-block;border-color:rgba(225,195,127,.55)}
+.inv-slot{
+  cursor:grab;
+  
+  touch-action:none;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+}
+body.dragging-item .inv-slot{cursor:grabbing}
+
+#drag-ghost{
+  position:fixed;z-index:3400;pointer-events:none;
+  width:58px;height:58px;margin:-29px 0 0 -29px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(225,195,127,.5);border-radius:3px;
+  background:#E1C37F;
+  box-shadow:0 8px 22px rgba(0,0,0,.55);
+  transform:rotate(-4deg);opacity:.92;
+}
+#drag-ghost img{width:36px;height:36px;object-fit:contain}
+#drag-ghost{font-family:'Eckmann',serif;font-size:9px;color:rgba(40,30,18,.75);text-align:center}
+
+body.dragging-item #zone-scrim{opacity:.85}
+@media(max-width:900px){
+  #item-modal .im-card{padding:26px 28px 20px}
+  #item-modal .im-art{width:104px;height:104px;margin-bottom:16px}
+  #item-modal .im-name{font-size:15px;margin-bottom:18px}
+}
+
+#char-text,#dialog-text,.choice-btn,.msg,#user-input,#user-input::placeholder,.zb,.zs,#scene-intro .si-note{text-transform:lowercase}
+.ch-btn,#zone-return,.zt,.zl{text-transform:uppercase}
+</style>
+</head>
+<body>
+<div id="grain"></div>
+<div id="vignette"></div>
+<div id="curtain"></div>
+<div id="loading-note">the body is opening</div>
+<div id="scene-failed">
+  <div class="sf-note">this part of the body will not open</div>
+  <div class="sf-sub">something did not load. check your connection.</div>
+  <div class="sf-acts">
+    <button class="sf-retry">try again</button>
+    <button class="sf-back">return to the surface</button>
+  </div>
+</div>
+<div id="inventory">
+  <div class="inv-slot match-slot"><span class="slot-label"></span></div>
+  <div class="inv-slot"><span class="slot-label"></span></div>
+  <div class="inv-slot"><span class="slot-label"></span></div>
+  <div class="inv-slot"><span class="slot-label"></span></div>
+  <div class="inv-slot"><span class="slot-label"></span></div>
+</div>
+<audio id="bg-music" loop preload="auto"></audio>
+<audio id="ambient-audio" loop preload="auto"></audio>
+<audio id="voice-audio"></audio>
+
+<audio id="sfx-audio"></audio>
+<audio id="get-audio"></audio>
+<audio id="ui-audio"></audio>
+<audio id="chop-audio"></audio>
+
+<button id="restart-run" type="button">begin again?</button>
+<div id="map-screen" class="screen">
+  <div id="world">
+    <img class="map-art">
+
+    <div class="ambient swamp-sway"></div>
+    <div class="ambient swamp-sway-2"></div>
+    <div class="ambient temple-fire"></div>
+    <div class="ambient cistern-glow"></div>
+    
+    <div class="zone" data-zone="cliffs" style="left:26%;top:10%;width:40%;height:10%"></div>
+    <div class="zone" data-zone="cave" style="left:52%;top:20%;width:16%;height:12%"></div>
+    <div class="zone" data-zone="desert" style="left:0%;top:36%;width:32%;height:28%"></div>
+    <div class="zone" data-zone="forest" style="left:55%;top:28%;width:38%;height:30%"></div>
+    <div class="zone" data-zone="cabin" style="left:34%;top:27%;width:20%;height:16%"></div>
+    <div class="zone" data-zone="swamp" style="left:40%;top:52%;width:34%;height:22%"></div>
+    <div class="zone" data-zone="croc" style="left:83%;top:54%;width:14%;height:14%"></div>
+    <div class="zone" data-zone="cistern" style="left:60%;top:72%;width:22%;height:18%"></div>
+  </div>
+</div>
+<div id="zone-screen" class="screen">
+  <div id="zone-scene"></div>
+  <div id="zone-scrim"></div>
+  <div id="scene-blackout"></div>
+  <div id="scene-intro"><span class="si-note"></span><span class="si-go">click to continue</span></div>
+  <div id="dialogue-wrap">
+    <div id="dialogue-history"></div>
+    <div id="dialogue-box">
+      <div id="char-name"></div>
+      <div id="char-text"></div>
+      <form id="input-row" autocomplete="off" action="#">
+        <span id="input-prompt">&gt;</span>
+        
+        <input type="text" id="user-input" placeholder="speak..." autocomplete="off"
+               spellcheck="false" enterkeyhint="send" autocapitalize="off">
+        
+        <button type="submit" id="wish-send">speak</button>
+      </form>
+      <div id="leave-note">there is nothing left for you here</div>
+      <div id="advance-hint" aria-hidden="true">▾</div>
+    </div>
+    
+    <div id="choices"></div>
+    <button id="zone-return">return</button>
+  </div>
+</div>
+<div id="kk-stage">
+  <video id="kk-video" playsinline preload="auto"></video>
+  <div id="kk-lines"></div>
+  <div id="kk-outro">
+    
+    <div class="kk-album">
+      <button class="kk-back">return to the world</button>
+    </div>
+  </div>
+</div>
+<div id="item-modal">
+  <div class="im-card">
+    <img class="im-art" alt="">
+    <div class="im-name"></div>
+    <div class="im-desc"></div>
+    <div class="im-actions">
+      <button class="im-use"></button>
+      <button class="im-close">continue</button>
+    </div>
+  </div>
+</div>
+<div id="zone-idx"></div>
+
+<div id="sun-letter">
+  <video id="sl-narration" playsinline preload="auto"></video>
+  <div class="sl-stage" data-state="idle">
+    <div class="sl-mirror">
+      <img class="sl-frame" alt="">
+      <div class="sl-glass">
+        <video id="sl-reflection" autoplay muted playsinline aria-label="Your live reflection, visible only on this device"></video>
+        <canvas id="sl-text" width="540" height="810" aria-hidden="true"></canvas>
+        <div class="sl-invitation">
+          <p id="sl-message" aria-live="polite"></p>
+          <button id="sl-begin" type="button">
+            <span class="sl-play" aria-hidden="true"></span>
+            <span class="sl-hint" id="sl-hint">Allow your camera to begin</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="sl-below">
+      <div class="sl-controls"><button id="sl-skip" type="button">Skip</button></div>
+    </div>
+  </div>
+</div>
+<div id="overseer">
+  <div style="display:flex;flex-direction:column;align-items:center">
+    <div id="dialog">
+      <div id="dialog-text">Do you wish to enter the body?</div>
+      <div class="d-choices" id="dialog-ch"><button class="ch-btn" data-ch="enter">enter</button></div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+'use strict';
+
+var ASSET_VERSION='5';
+
+var MAP_ART='art/map.jpg', MAP_ART_POSTGAME='art/map_postgame.jpg';
+function v(url){return url+(url.indexOf('?')>-1?'&':'?')+'v='+ASSET_VERSION;}
+
+(function(){
+  var tried=null;
+  try{ tried=sessionStorage.getItem('knot-reload-target'); }catch(e){ return; }
+  fetch('version.txt',{cache:'no-store'})
+    .then(function(r){return r.ok?r.text():null;})
+    .then(function(t){
+      if(!t)return;
+      var latest=t.trim();
+      if(!latest||latest===ASSET_VERSION)return;
+      if(tried===latest)return;        
+      try{ sessionStorage.setItem('knot-reload-target',latest); }catch(e){}
+      
+      return fetch(location.href,{cache:'reload'})
+        .catch(function(){})
+        .then(function(){ location.reload(); });
+    })
+    .catch(function(){});
+})();
+
+(function(){
+  
+  var m=document.querySelector('.map-art');   if(m)m.src=v('art/map.jpg');
+  var b=document.getElementById('bg-music');  if(b)b.src=v('audio/UI/GAME_BG_LOOP.m4a');
+  
+  var sf=document.querySelector('.sl-frame');       if(sf)sf.src=v('art/SUN_MIRROR.png');
+  var sn=document.getElementById('sl-narration');   if(sn)sn.src=v('art/SUN_LETTER.mp4');
+})();
+function v_(url){return v(url);}   
+document.addEventListener('gesturestart',function(e){e.preventDefault()});
+document.addEventListener('gesturechange',function(e){e.preventDefault()});
+document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preventDefault()},{passive:false});
+var state={phase:'overseer',zone:null,mobile:window.innerWidth<=900,dragging:false,wo:{x:0,y:0}};
+var $=function(id){return document.getElementById(id)};
+var el={world:$('world'),overseer:$('overseer'),dt:$('dialog-text'),dc:$('dialog-ch'),curtain:$('curtain'),mapScreen:$('map-screen'),zoneScreen:$('zone-screen'),zoneScene:$('zone-scene'),charName:$('char-name'),charText:$('char-text'),userInput:$('user-input'),dialogueHistory:$('dialogue-history'),choices:$('choices'),inputRow:$('input-row'),zReturn:$('zone-return'),leaveNote:$('leave-note'),advanceHint:$('advance-hint'),zIdx:$('zone-idx'),refuse:$('refuse'),viewport:$('map-screen'),vignette:$('vignette')};
+
+var conversations = {};
+var typing = false;
+
+var gameState = {
+  visited: {},
+  choices: {},
+  inventory: {},
+  questFlags: {},
+  crocState: 'intro',        
+  complete: false
+};
+
+async function loadGame(){
+  try{
+    var saved = JSON.parse(localStorage.getItem('knot-save'));
+    if(saved){
+      gameState.visited = saved.visited || {};
+      gameState.choices = saved.choices || {};
+      gameState.inventory = saved.inventory || {};
+      gameState.questFlags = saved.questFlags || {};
+      
+      gameState.crocState = (saved.crocState==='aggressive'||saved.crocState==='passive')
+        ? saved.crocState : 'intro';
+      gameState.complete = saved.complete || false;
+      
+      if(gameState.complete)document.body.classList.add('postgame');
+      
+      if(gameState.inventory&&gameState.inventory.effigy&&!gameState.questFlags.effigy_burned){
+        setTimeout(prepFinaleVideo,4000);
+      }
+      return true;
+    }
+  }catch(e){
+    
+  }
+  return false;
+}
+
+async function saveGame(){
+  try{
+    localStorage.setItem('knot-save', JSON.stringify(gameState));
+  }catch(e){
+    
+  }
+}
+
+function markVisited(zoneId){
+  if(!gameState.visited[zoneId]){
+    gameState.visited[zoneId] = true;
+    saveGame();
+  }
+}
+
+function saveChoice(zoneId, choiceId){
+  gameState.choices[zoneId] = choiceId;
+  saveGame();
+}
+
+function getVisitedCount(){
+  return Object.keys(gameState.visited).length;
+}
+
+function hasVisited(zoneId){
+  return !!gameState.visited[zoneId];
+}
+
+async function resetGame(){
+  gameState = {visited:{},choices:{},inventory:{},questFlags:{},crocState:'intro',complete:false};
+  try{localStorage.removeItem('knot-save')}catch(e){}
+}
+
+var ITEM_GET_SFX={
+  axe:              'audio/ITEMS/GET/AXE_GET.m4a',
+  thread:           'audio/ITEMS/GET/SPOOL_GET.m4a',
+  snail_stew:       'audio/ITEMS/GET/SNAIL_STEW_GET.m4a',
+  crows_feather:    'audio/ITEMS/GET/FEATHER_GET.m4a',
+  water:            'audio/ITEMS/GET/WATER_BUCKET_GET.m4a',
+  diamond_necklace: 'audio/ITEMS/GET/DIAMOND_NECKLACE_GET.m4a',
+  effigy:           'audio/ITEMS/GET/EFFIGY_GET.m4a'
+};
+
+var pendingReveal={};
+function revealPending(){
+  var any=false;
+  for(var k in pendingReveal){any=true;break;}
+  if(!any)return;
+  pendingReveal={};
+  renderInventory();
+}
+
+function addItem(item){
+  gameState.inventory[item] = true;
+  pendingReveal[item]=true;
+  
+  saveGame();
+  renderInventory();
+  refreshScene();
+}
+
+function hasItem(item){
+  return !!gameState.inventory[item];
+}
+
+function removeItem(item){
+  delete gameState.inventory[item];
+  saveGame();
+  renderInventory();
+  refreshScene();
+}
+
+function setFlag(flag){
+  gameState.questFlags[flag] = true;
+  saveGame();
+  refreshScene();
+}
+
+function hasFlag(flag){
+  return !!gameState.questFlags[flag];
+}
+
+var ITEM_LABELS={
+  match:'match',water:'water\nbucket',diamond_necklace:'diamond\nnecklace',
+  axe:'axe',thread:'thread',snail_stew:'snail\nstew',
+  crows_feather:"crow's\nfeather",effigy:'effigy'
+};
+var ITEM_ICONS={
+  match:'icons/MATCH.png',
+  water:'icons/WATER.png',
+  diamond_necklace:'icons/NECKLACE.png',
+  axe:'icons/AXE.png',
+  thread:'icons/SPOOL.png',
+  snail_stew:'icons/SLUG JUICE.png',
+  crows_feather:'icons/FEATHER.png',
+  effigy:'icons/EFFIGY.png'
+};
+
+function slotContentHTML(item){
+  if(!item)return '<span class="slot-label"></span>';
+  var icon=ITEM_ICONS[item];
+  if(icon)return '<img class="slot-icon" draggable="false" src="'+v(encodeURI(icon))+'" alt="'+(ITEM_LABELS[item]||item)+'">';
+  var label=ITEM_LABELS[item]||item.replace(/_/g,' ');
+  return '<span class="slot-label">'+label+'</span>';
+}
+
+function paintSlot(slot,item){
+  var next=item||'';
+  var prev=slot.dataset.item||'';
+  if(prev===next)return;
+  slot.dataset.item=next;
+  slot.classList.toggle('filled',!!next);
+  var token=(+slot.dataset.token||0)+1;
+  slot.dataset.token=token;
+  var old=slot.firstElementChild;
+  if(prev&&old){
+    old.classList.add('leaving');
+    setTimeout(function(){
+      if(+slot.dataset.token!==token)return;   
+      slot.innerHTML=slotContentHTML(next);
+    },500);
+  }else{
+    slot.innerHTML=slotContentHTML(next);
+  }
+}
+
+function renderInventory(){
+  var inv=document.getElementById('inventory');
+  if(!inv)return;
+  if(hasFlag('effigy_burned')){inv.classList.add('hidden');return;}
+  
+  var placed=(currentSceneId==='cabin'&&hasItem('effigy'));
+  var others=Object.keys(gameState.inventory).filter(function(k){
+    return k!=='match'&&!(k==='effigy'&&placed)&&!pendingReveal[k];
+  });
+  var slots=inv.querySelectorAll('.inv-slot');
+  paintSlot(slots[0],hasItem('match')?'match':null);
+  for(var i=0;i<4;i++){
+    paintSlot(slots[i+1],others[i]||null);
+  }
+}
+
+(async function(){
+  var forceNew = /[?&]reset\b/.test(location.search);
+  if(forceNew){
+    try{localStorage.removeItem('knot-save')}catch(e){}
+  }
+  var loaded = forceNew ? false : await loadGame();
+  if(!loaded){
+    
+    gameState.inventory['match'] = true;
+    saveGame();
+  }
+  revealPending();          
+  renderInventory();
+  
+  setTimeout(prefetchScenes,1200);
+  
+  updateMapArt();
+})();
+
+var characters = {
+  cliffs: {
+    name: 'M',
+    scripted: true,
+    dynamic: true,
+    getState: function(){
+      if(hasFlag('effigy_burned')) return 'gone';
+      if(hasFlag('effigy_given')) return 'done';
+      if(hasFlag('met_m')) return 'return_visit';
+      return 'first_visit';
+    },
+    states: {
+      
+      gone: {
+        environmentNote: 'The peak is bare. The workbench is gone, and the junk with it.',
+        text: 'Nothing here but wind and the smell of something burnt.',
+        narration: true
+      },
+      first_visit: {
+        environmentNote: 'A pile of junk covers the peak. A woman hunches over a workbench crafting phantoms out of junk, muttering.',
+        text: '',
+        action: 'm_intro'
+      },
+      return_visit: {
+        environmentNote: 'The same bench. M still hunched over it, still muttering.',
+        
+        lines: function(){
+          
+          if(mHasTribute()) return ['Tkk... what is that. Shhk. Let me see it.'];
+          return mMissingLines().concat(['bring them... bring them...']);
+        },
+        auto_leave_after: true
+      },
+      done: {
+        environmentNote: 'A burnt-sweet smell lingers. M hums without looking up.',
+        text: function(){ return 'Shhk. Tkk tkk. Go on now.'; },
+        auto_leave: true
+      }
+    }
+  },
+  cave: {
+    name: 'Butcher',
+    scripted: true,
+    dynamic: true,
+    getState: function(){
+      if(hasFlag('effigy_burned')) return 'gone';
+      
+      if(hasFlag('butcher_hostile')) return 'cave_shut';
+      if(hasFlag('thread_stolen')) return 'butcher_angry';
+      if(hasFlag('butcher_left')||hasFlag('butcher_has_axe')) return 'cave_empty';
+      if(hasItem('axe')) return 'has_axe';
+      return 'no_axe';
+    },
+    states: {
+      
+      gone: {
+        environmentNote: 'The cave is empty. The tools are gone from the walls.',
+        text: 'No one has been here in a long time.',
+        narration: true
+      },
+      no_axe: {
+        environmentNote: 'A dark cave. Meat and hooks hang on the walls.',
+        lines: [
+          "I lost my axe. Im nothing without it..",
+          "Find it. Bring it back. Then we can talk. Then we can... yes."
+        ],
+        feel: 'You feel his gaze passing through you.',
+        feelFirst: true,
+        action: 'set_flag',
+        flag: 'met_butcher',
+        auto_leave_after: true
+      },
+      has_axe: {
+        environmentNote: 'Butcher is here. His eyes go straight to your hands.',
+        text: '',
+        action: 'butcher_sees_axe'
+      },
+      cave_empty: {
+        environmentNote: 'The cave is empty. A spool of thread sits on the workbench.',
+        text: function(){
+          return hasFlag('met_jester')&&!hasFlag('thread_stolen')
+            ? 'He is gone. Thread sits in the corner. Do you want to take it?'
+            : 'He is gone.';
+        },
+        narration: true
+      },
+      steal_thread: {
+        text: 'You pocket the thread. The cave feels smaller without him in it.',
+        narration: true,
+        action: 'add_item',
+        item: 'thread',
+        flag: 'thread_stolen',
+        auto_leave_after: true
+      },
+      butcher_angry: {
+        environmentNote: 'Butcher is back. His eyes go to the empty spool.',
+        text: '',
+        action: 'butcher_angry'
+      },
+
+      cave_shut: {
+        action: 'cave_shut',
+        blockedText: "…i don't think now is a good time.",
+        text: ''
+      }
+    }
+  },
+  desert: {
+    name: 'Shadow',
+    scripted: true,
+    dynamic: true,
+    getState: function(){
+      if(hasFlag('effigy_burned')) return 'gone';
+      if(hasFlag('shadow_left')) return 'done';
+      
+      if(hasFlag('met_shadow')) return 'return_visit';
+      if(hasItem('water')) return 'has_water';
+      return 'no_water';
+    },
+    states: {
+      
+      gone: {
+        environmentNote: 'Cracked earth, and nothing standing on it.',
+        text: 'The dust has settled. Nothing moves.',
+        narration: true
+      },
+      no_water: {
+        environmentNote: 'A shadow begins to take shape out of the cracked earth.',
+        text: "I'm so thirsty, but the river is dark.",
+        feel: 'You feel your mouth go dry.',
+        feelFirst: true,
+        action: 'set_flag',
+        flag: 'met_shadow',
+        choices: [
+          {label:"What do you mean by that?",next:'confused'}
+        ]
+      },
+      has_water: {
+        
+        environmentNote: 'A shadow begins to take shape out of the cracked earth.',
+        text: "I'm so thirsty, but the river is dark.",
+        
+        feel: 'You feel your mouth go dry.',
+        feelFirst: true,
+        action: 'set_flag',
+        flag: 'met_shadow'
+      },
+      return_visit: {
+        environmentNote: 'The shadow gathers again out of the cracked earth, thinner than before.',
+        text: '',
+        action: 'shadow_return'
+      },
+      confused: {
+        text: "I'm off course. I don't have time for this.",
+        action: 'leave'
+      },
+      done: {
+        environmentNote: 'Cracked earth, empty. Footprints toward the mountain, half-filled with dust.',
+        text: 'Shadow is gone.',
+        narration: true,
+        auto_leave: true
+      }
+    }
+  },
+  swamp: {
+    name: 'Jester',
+    scripted: true,
+    dynamic: true,
+    getState: function(){
+      if(hasFlag('effigy_burned')) return 'gone';
+      if(hasFlag('jester_got_thread')) return 'done';
+      
+      if(!hasFlag('met_jester')) return 'first_visit';
+      if(hasItem('thread')) return 'has_thread';
+      return 'waiting';
+    },
+    states: {
+      
+      gone: {
+        environmentNote: 'The stump is empty. The cypress is still.',
+        text: 'No grin. No thread. Nothing.',
+        narration: true
+      },
+      first_visit: {
+        environmentNote: 'A figure leaning out of the cypress, grinning.',
+        text: "Why are you wearing such a thing?",
+        choices: [
+          {label:'I thought it looked nice',next:'requests_thread_a'},
+          {label:'Why do you care?',next:'requests_thread_b'}
+        ]
+      },
+      requests_thread_a: {
+        text: "Sounds like you and fashion had a falling out! But no matter, I'm out of thread... would you be so kind as to fetch me some, maybe I could help you in return.",
+        action: 'set_flag',
+        flag: 'met_jester',
+        auto_leave_after: true
+      },
+      requests_thread_b: {
+        text: "Care? Me? I simply enjoy watching people explain themselves! Now, if you're feeling generous, I could use some thread.",
+        action: 'set_flag',
+        flag: 'met_jester',
+        auto_leave_after: true
+      },
+      waiting: {
+        environmentNote: 'Still leaning out of the cypress, still grinning.',
+        text: "Still no thread? It does not grow on trees. Well perhaps it does. But not in this grove.",
+        auto_leave_after: true
+      },
+      has_thread: {
+        environmentNote: 'He sees your hands before you speak. The grin widens.',
+        text: "Oh! OH! You beautiful creature. have you thread? Give it here!"
+      },
+      done: {
+        environmentNote: 'He hums, stitching with the new thread. A wave without looking up.',
+        text: "Off you go. I have sewing to do.",
+        auto_leave: true
+      }
+    }
+  },
+  forest: {
+    
+    name: '',
+    scripted: true,
+    dynamic: true,
+    getState: function(){
+      if(hasFlag('effigy_burned')) return 'gone';
+      
+      if(hasFlag('butcher_left')||hasFlag('butcher_has_axe')){
+        
+        return hasFlag('jester_got_thread') ? 'chopping_stopped' : 'butcher_chopping';
+      }
+      if(hasItem('axe')) return 'axe_carried';
+      if(hasFlag('axe_picked_up')) return 'stump_empty';
+      return 'axe_in_stump';
+    },
+    states: {
+      
+      gone: {
+        environmentNote: 'The grove is silent. No axe, no blows, no one among the trees.',
+        text: 'Whatever was here has gone.',
+        narration: true
+      },
+      axe_in_stump: {
+        environmentNote: 'A dense grove. A scarred stump catches a thin shaft of light.',
+        text: 'An axe is buried in the stump. The blade is dark.',
+        feel: 'You feel oddly at peace.',
+        narration: true
+      },
+      pick_up: {
+        text: 'You pull it free. It is heavier than it looks.',
+        narration: true,
+        action: 'add_item',
+        item: 'axe',
+        flag: 'axe_picked_up',
+        auto_leave_after: true
+      },
+      axe_carried: {
+        environmentNote: 'The scarred stump, empty. The grove quiet.',
+        text: 'The axe is not here. You are carrying it.',
+        narration: true,
+        auto_leave: true
+      },
+      stump_empty: {
+        environmentNote: 'The scarred stump, empty. The grove quiet.',
+        text: 'The axe is gone. The forest breathes.',
+        narration: true,
+        auto_leave: true
+      },
+      butcher_chopping: {
+        environmentNote: 'The canopy shudders. Deep in the grove, trees crack with each blow.',
+        lines: [
+          'You hear someone swinging an axe in steady arcs.',
+          'Chop. Chop.',
+          'They are too deep in the trees to notice you…'
+        ],
+        feel: 'You feel a chill go down your spine. You should get out of here.',
+        narration: true,
+        auto_leave: true
+      },
+      
+      chopping_stopped: {
+        environmentNote: 'The canopy is still. Whatever was working in there has stopped.',
+        text: 'The grove has gone quiet. Sawdust hangs in the light where the blows were.',
+        narration: true,
+        auto_leave: true
+      }
+    }
+  },
+  cistern: {
+    name: 'The Wishing Well',
+    isWell: true,
+    environmentNote: 'A ring of ancient stone. Dark, perfectly still water that does not reflect the sky.',
+    opening: 'What do you want from me?',
+    responses: [
+      'Where your chest pounds.',
+      'Where the pressure rises.',
+      'In the place that beats without being asked.',
+      'Beneath the ribs of the land.',
+      'Where warmth gathers and will not leave.',
+      'At the center. Where everything meets.',
+      'Where the rhythm lives. You know the place.',
+      'Go where the pulse is loudest.',
+      'The organ that never rests. Go there.',
+      'In the clearing. Where the ground remembers heat.',
+      'Where blood once moved. Where it will move again.',
+      'Find the chamber. You already know where it is.',
+      'Where something still beats, even now.',
+      'Not here. Deeper. Where the body holds its warmth.',
+      'At the place between all other places.'
+    ],
+    responseIndex: 0
+  },
+  croc: {
+    name: 'The Crocodile',
+    isCroc: true,
+    environmentNote: 'A massive crocodile lies half-submerged. Something dark and feathered is caught between its teeth.',
+    environmentNoteDone: 'A massive crocodile lies half-submerged. Its mouth is closed now.'
+  },
+  cabin: {
+    name: '',
+    scripted: true,
+    dynamic: true,
+    getState: function(){
+      if(hasFlag('effigy_burned')) return 'complete';
+      if(hasItem('effigy')) return 'has_effigy';
+      return 'no_effigy';
+    },
+    states: {
+      no_effigy: {
+        environmentNote: 'A grave marker in a clearing. Wildflowers, warm stone.',
+        text: 'The grave is silent. Something feels unfinished.',
+        narration: true,
+        auto_leave: true
+      },
+      has_effigy: {
+        environmentNote: 'The stone hums faintly. The air thick, the wildflowers perfectly still.',
+        text: '',
+        action: 'place_effigy'
+      },
+      complete: {
+        environmentNote: 'The grave is open. Wildflowers growing inside it.',
+        text: 'There is nothing left here.',
+        narration: true,
+        auto_leave: true
+      }
+    }
+  }
+};
+
+var ASSET='art/';
+var UA=navigator.userAgent;
+var isApple=/iPad|iPhone|iPod|CriOS|FxiOS/.test(UA)||(/Safari/.test(UA)&&!/Chrome|Chromium|Android|Edg|OPR/.test(UA));
+function alphaSrc(base){return v(ASSET+base+(isApple?'.mp4':'.webm'));}
+
+var sceneLayers={
+  cliffs:[
+    {video:'MOUNTAIN_BG.mp4'},
+    
+    {alpha:'MOUNTAIN_M',
+     show:function(){return !hasFlag('effigy_burned')&&!mCrafting;}},
+    {alpha:'M_EFFIGY',
+     show:function(){return !hasFlag('effigy_burned')&&mCrafting;}}
+  ],
+  cave:[
+    {video:'CAVE_BG.mp4'},
+
+    {alpha:'CAVE_BUTCHER',loopSwap:true,
+     show:function(){return !hasFlag('effigy_burned')&&!hadFlagOnEntry('thread_stolen')
+                            &&!hadFlagOnEntry('butcher_left')&&!butcherWalkedOut;}},
+    {alpha:'BUTCHER_SLACK',loopSwap:true,
+     show:function(){return !hasFlag('effigy_burned')&&hadFlagOnEntry('thread_stolen');}},
+
+    {img:'SPOOL.png',grab:'thread',flag:'thread_stolen',giver:'',
+     show:function(){return !hasFlag('effigy_burned')&&!hasFlag('thread_stolen');},
+     canGrab:function(){return hadFlagOnEntry('butcher_left')||spoolOffered;}}
+  ],
+  desert:[
+    {video:'DESERT_BG.mp4'},
+    {alpha:'DESERT_SHADOW',show:function(){return !hasFlag('effigy_burned')&&!hadFlagOnEntry('shadow_left');}}
+  ],
+  forest:[
+    {video:'FOREST_BG.mp4'},
+    {img:'AXE.png',grab:'axe',flag:'axe_picked_up',giver:'',
+     show:function(){return !hasFlag('axe_picked_up');}}
+  ],
+  swamp:[
+    {video:'SWAMP_BG.mp4'},
+    {alpha:'SWAMP_JESTER',show:function(){return !hasFlag('effigy_burned');}}
+  ],
+  croc:[
+    {video:'CROCODILE_BG.mp4'},
+
+    {alpha:'CROCODILE_CROC',loopSwap:true,sound:true,
+     show:function(){return !hasFlag('effigy_burned')&&crocPlate()==='idle';}},
+    {alpha:'CROCODILE_PASSIVE',loopSwap:true,sound:true,
+     show:function(){return !hasFlag('effigy_burned')&&crocPlate()==='passive';}},
+    {alpha:'CROCODILE_AGGRESSIVE',loopSwap:true,sound:true,
+     show:function(){return !hasFlag('effigy_burned')&&crocPlate()==='aggressive';}},
+    
+    {img:'FEATHER.png',grab:'crows_feather',flag:'got_feather',giver:'',
+     show:function(){return !hasFlag('effigy_burned')&&!hasFlag('got_feather');},
+     canGrab:function(){return hasFlag('croc_solved');}}
+  ],
+  cistern:[
+    {video:'WISHING WELL_BG.mp4'},
+    
+    {alpha:'WISHING WELL_BUCKET',show:function(){return !hasFlag('effigy_burned')&&!hasFlag('got_water');}}
+  ],
+  cabin:[
+    
+    {video:'HEART_BG.mp4',    show:function(){return !heartShowsEffigy();}},
+    {video:'HEART_EFFIGY.mp4',show:function(){return heartShowsEffigy();}}
+  ]
+};
+
+var currentSceneId=null;
+var butcherWalkedOut=false;   
+var spoolOffered=false;       
+var mCrafting=false;          
+
+function crocPlate(){
+  if(hasFlag('croc_solved')||hasFlag('got_feather'))return 'idle';
+  var s=(typeof gameState!=='undefined'&&gameState.crocState)||'intro';
+  return s==='passive'?'passive':(s==='aggressive'?'aggressive':'idle');
+}
+var sceneEntryFlags={};
+function hadFlagOnEntry(f){return !!sceneEntryFlags[f];}
+function layerVisible(L){return !(L.show&&!L.show());}
+function buildScene(id){
+  sceneGen++;                    
+  currentSceneId=id;
+  
+  butcherWalkedOut=false;
+  spoolOffered=false;
+  mCrafting=false;
+  sceneEntryFlags={};
+  for(var k in gameState.questFlags){
+    if(gameState.questFlags.hasOwnProperty(k))sceneEntryFlags[k]=gameState.questFlags[k];
+  }
+  var layers=sceneLayers[id]||[];
+  var html='';
+  layers.forEach(function(L,i){
+    var shown=layerVisible(L);
+    
+    var hide=shown?'':((L.video||L.alpha)?' style="opacity:0"':' style="display:none"');
+
+    var pre=shown?'auto':'none';
+    if(L.video){
+      html+='<video class="scene-layer" data-li="'+i+'"'+hide+' autoplay loop muted playsinline preload="'+pre+'" src="'+v(ASSET+encodeURI(L.video))+'"></video>';
+    }else if(L.alpha){
+      
+      html+='<video class="scene-layer" data-li="'+i+'"'+hide+(L.sound?' data-sound="1"':'')+' autoplay loop muted playsinline preload="'+pre+'" src="'+encodeURI(alphaSrc(L.alpha))+'"></video>';
+    }else if(L.img){
+      var grab=L.grab?' grabbable" data-grab="'+L.grab+'" data-gi="'+i+'':'';
+      html+='<img class="scene-layer'+grab+'" data-li="'+i+'"'+hide+' src="'+v(ASSET+encodeURI(L.img))+'">';
+    }
+  });
+
+  releaseSceneMedia();
+  el.zoneScene.innerHTML='<div id="zone-frame">'+html+'</div>';
+  clearSceneFailure();
+  guardSceneMedia();
+  stageSceneMedia();
+  initLayerSound();
+  bindGrabbables();
+  renderInventory();     
+}
+
+function bindGrabbables(){
+  [].forEach.call(el.zoneScene.querySelectorAll('.grabbable'),function(n){
+    n.addEventListener('click',function(e){
+      e.stopPropagation();
+      var L=(sceneLayers[currentSceneId]||[])[+n.getAttribute('data-gi')];
+      if(!L||n.dataset.taken||!layerGrabbable(L))return;
+      n.dataset.taken='1';
+      takeItem(L,n);
+    });
+  });
+}
+
+function sceneLayerNode(key){
+  var layers=sceneLayers[currentSceneId]||[],found=null;
+  layers.forEach(function(L,i){
+    if(L.alpha===key||L.img===key||L.video===key){
+      found=el.zoneScene.querySelector('[data-li="'+i+'"]');
+    }
+  });
+  return found;
+}
+function fadeSceneLayer(key){
+  var n=sceneLayerNode(key);
+  if(n)n.classList.add('faded');
+}
+function surgeSceneLayer(key){
+  var n=sceneLayerNode(key);
+  if(n)n.classList.add('surging');
+}
+
+function leaveSceneLayer(key){
+  var n=sceneLayerNode(key);
+  if(n)n.classList.add('leaving');
+}
+function vanishSceneLayer(key){
+  var n=sceneLayerNode(key);
+  if(!n)return;
+  n.classList.remove('surging');
+  applyLayerVisibility(n,false);
+}
+
+function heartShowsEffigy(){
+  return hasItem('effigy') || (hasFlag('effigy_burned') && !hadFlagOnEntry('effigy_burned'));
+}
+
+function layerGrabbable(L){return !L||!L.canGrab||L.canGrab();}
+function enableGrabbables(){
+  if(!el.zoneScene)return;
+  var layers=sceneLayers[currentSceneId]||[];
+  [].forEach.call(el.zoneScene.querySelectorAll('.grabbable'),function(n){
+    var L=layers[+n.getAttribute('data-gi')];
+    
+    n.classList.toggle('live',!n.dataset.taken&&layerGrabbable(L));
+  });
+}
+
+async function takeItem(L,node){
+  cancelAdvance();
+  
+  if(el.leaveNote)el.leaveNote.classList.remove('show','offer');
+  el.zReturn.classList.remove('show');
+  node.classList.remove('live');
+  node.classList.add('taken');
+  
+  await sceneDelay(780);
+  addItem(L.grab);
+  if(L.flag)setFlag(L.flag);
+  refreshScene();
+  await announceItem('',L.grab);
+  markZoneExhausted();
+}
+
+var swapToken=0;
+
+function plateShown(n){
+  if(n.tagName==='VIDEO')return n.style.opacity!=='0';
+  return n.style.display!=='none';
+}
+function applyLayerVisibility(n,want){
+  if(n.tagName==='VIDEO'){
+    
+    n.style.transition='none';
+    n.style.display='';
+    n.style.opacity=want?'':'0';
+    (window.requestAnimationFrame||setTimeout)(function(){ n.style.transition=''; },0);
+  }else{
+    n.style.display=want?'':'none';
+  }
+  
+  if(want)n.classList.remove('pending');
+  
+  if(!want&&n.tagName==='VIDEO'&&n.dataset.sound){
+    n.muted=true;
+    try{n.pause();}catch(e){}
+  }
+}
+
+function commitLayerChange(pending,onSwap){
+  
+  var incoming=null;
+  if(onSwap)onSwap();            
+  pending.forEach(function(p){
+    var n=p.node;
+    if(!p.want)return;
+    if(n.__released)return;      
+    applyLayerVisibility(n,true);
+    if(n.tagName!=='VIDEO')return;
+    
+    if(n.currentTime>0.1){ try{n.currentTime=0;}catch(e){} }
+    
+    if(n.dataset.sound&&!worldIsSilent()){
+      n.muted=false;
+      n.volume=crocIsVoicing()?0:LAYER_SOUND_VOLUME;
+    }
+    var q=n.play(); if(q&&q.catch)q.catch(function(){});
+    if(!incoming)incoming=n;
+  });
+  
+  function dropOutgoing(){
+    pending.forEach(function(p){ if(!p.want)applyLayerVisibility(p.node,false); });
+  }
+  if(!incoming)dropOutgoing();
+  else{
+    var handed=false;
+    function hand(){
+      if(handed)return; handed=true;
+      clearInterval(poll);
+      dropOutgoing();
+    }
+    function confirmed(){ (window.requestAnimationFrame||setTimeout)(hand,0); }
+    
+    var presented=0;
+    function onFrame(){
+      if(handed)return;
+      if(++presented>=2)confirmed();
+      else incoming.requestVideoFrameCallback(onFrame);
+    }
+    var hasFrameCallback=!!incoming.requestVideoFrameCallback;
+    if(hasFrameCallback)incoming.requestVideoFrameCallback(onFrame);
+    
+    var poll=setInterval(function(){
+      if(handed)return;
+      if(incoming.__released||!currentSceneId){ hand(); return; }
+      if(!hasFrameCallback&&incoming.readyState>=2&&!incoming.seeking&&incoming.currentTime>0.15)confirmed();
+    },32);
+    
+    setTimeout(function(){
+      if(handed)return; handed=true;
+      clearInterval(poll);
+      pending.forEach(function(p){
+        if(!p.want)return;
+        if(p.node.dataset.sound)p.node.muted=true;   
+        applyLayerVisibility(p.node,false);
+      });
+      
+      pending.forEach(function(p){
+        var n=p.node;
+        if(p.want||n.__released||!currentSceneId)return;
+        applyLayerVisibility(n,true);
+        if(n.tagName==='VIDEO'){
+          n.loop=true;
+          var r=n.play(); if(r&&r.catch)r.catch(function(){});
+        }
+      });
+    },8000);
+  }
+  enableGrabbables();
+}
+
+function scheduleLoopSwap(pending,outgoing,onSwap){
+  var mine=++swapToken;
+  
+  outgoing.loop=false;
+  
+  var parked=[];
+  pending.forEach(function(p){
+    if(!p.want)return;
+    var n=p.node;
+    if(n.tagName!=='VIDEO'||n.__released)return;
+    if(plateShown(n))return;                 
+    try{ n.pause(); }catch(e){}
+    try{ n.currentTime=0; }catch(e){}
+    parked.push(n);
+  });
+  
+  function unpark(){
+    parked.forEach(function(n){
+      if(n.__released||!plateShown(n)&&!n.paused)return;
+      var r=n.play(); if(r&&r.catch)r.catch(function(){});
+    });
+  }
+  function fire(){
+    outgoing.removeEventListener('ended',fire);
+    outgoing.loop=true;
+    
+    if(outgoing.__released)return;
+    if(mine!==swapToken){ unpark(); return; }  
+    if(!currentSceneId){ unpark(); return; }   
+    
+    commitLayerChange(pending,onSwap);
+  }
+  outgoing.addEventListener('ended',fire);
+  
+  var left=Math.max(0,(outgoing.duration||6.1)-(outgoing.currentTime||0));
+  setTimeout(function(){ if(mine===swapToken)fire(); },(left+0.35)*1000);
+}
+
+function refreshScene(onSwap){
+  if(!currentSceneId)return;
+  var layers=sceneLayers[currentSceneId]||[];
+  var nodes=el.zoneScene.querySelectorAll('.scene-layer');
+  var pending=[],outgoing=null,instant=[];
+  nodes.forEach(function(n){
+    var L=layers[+n.getAttribute('data-li')];
+    if(!L)return;
+    var want=layerVisible(L), shown=plateShown(n);
+    if(want===shown)return;
+    if(L.loopSwap){
+      
+      if(want)warmLayer(n);
+      pending.push({node:n,want:want});
+      
+      if(!want&&n.tagName==='VIDEO')outgoing=n;
+      return;
+    }
+    
+    if(want)warmLayer(n);
+    instant.push({node:n,want:want});
+  });
+  if(instant.length)commitLayerChange(instant,onSwap);
+  if(pending.length){
+    if(outgoing)scheduleLoopSwap(pending,outgoing,onSwap);
+    
+    else{
+      pending.forEach(function(p){applyLayerVisibility(p.node,p.want);});
+      if(onSwap)onSwap();
+    }
+  }
+  
+  enableGrabbables();
+}
+
+var gateRevealed=false;
+function revealGate(){
+  if(gateRevealed)return; gateRevealed=true;
+  setTimeout(function(){
+    el.dt.classList.add('vis');
+    setTimeout(function(){el.dc.classList.add('vis')},1200);
+    el.overseer.classList.add('lit');
+    var y=document.getElementById('footer-year');
+    if(y)y.textContent=new Date().getFullYear();
+  },800);
+}
+if(!document.getElementById('sun-letter'))revealGate();
+document.querySelectorAll('.ch-btn').forEach(function(b){b.addEventListener('click',function(){playClick();enterWorld()})});
+
+(function(){
+  var r=document.getElementById('restart-run');
+  if(!r)return;
+  r.addEventListener('click',function(){
+    playClick();
+    resetGame();
+    setTimeout(function(){ location.href=location.pathname; },180);
+  });
+})();
+
+function mapViewW(){return el.mapScreen?el.mapScreen.clientWidth:window.innerWidth}
+function mapViewH(){return el.mapScreen?el.mapScreen.clientHeight:window.innerHeight}
+function getExploreScale(){var sx=mapViewW()/1608,sy=mapViewH()/2000;return Math.max(sx,sy)*1.6}
+function getPanBounds(){var s=getExploreScale();return{x:Math.max(0,(1608*s-mapViewW())/2),y:Math.max(0,(2000*s-mapViewH())/2)}}
+function clampOffset(){var b=getPanBounds();state.wo.x=Math.max(-b.x,Math.min(b.x,state.wo.x));state.wo.y=Math.max(-b.y,Math.min(b.y,state.wo.y))}
+function applyWorldTransform(){var s=getExploreScale();el.world.style.transform='translate3d(calc(-50% + '+state.wo.x+'px),calc(-50% + '+state.wo.y+'px),0) scale('+s+')'}
+
+var BG_MUSIC_VOLUME=1.6;   
+var MUSIC_SILENT_ZONES={cabin:true};
+
+var bgCtx=null, bgSource=null, bgGain=null, bgReady=false, bgWanted=0;
+var bgFade=null;
+
+function bgFallbackEl(){ return document.getElementById('bg-music'); }
+
+var bgLoading=false;
+function audioCtx(){
+  if(bgCtx)return bgCtx;
+  var C=window.AudioContext||window.webkitAudioContext;
+  if(!C)return null;
+  try{
+    bgCtx=new C();
+    bgGain=bgCtx.createGain();
+    bgGain.gain.value=0;
+    bgGain.connect(bgCtx.destination);
+  }catch(e){ bgCtx=null; }
+  return bgCtx;
+}
+
+function initGaplessMusic(){
+  if(bgLoading)return bgCtx;
+  if(!audioCtx())return null;
+  bgLoading=true;
+  fetch(v('audio/UI/GAME_BG_LOOP.m4a'))
+    .then(function(r){return r.arrayBuffer();})
+    .then(function(buf){
+      return new Promise(function(res,rej){
+        
+        var p=bgCtx.decodeAudioData(buf,res,rej);
+        if(p&&p.then)p.then(res,rej);
+      });
+    })
+    .then(function(audioBuf){
+      bgSource=bgCtx.createBufferSource();
+      bgSource.buffer=audioBuf;
+      bgSource.loop=true;                 
+      bgSource.connect(bgGain);
+      bgSource.start(0);
+      bgReady=true;
+      var el2=bgFallbackEl();
+      if(el2){el2.pause();el2.removeAttribute('src');}
+      rampMusic(bgWanted,1800);
+    })
+    .catch(function(){ bgReady=false; });
+  return bgCtx;
+}
+
+function rampMusic(to,ms){
+  if(!bgGain||!bgCtx)return;
+  var now=bgCtx.currentTime;
+  bgGain.gain.cancelScheduledValues(now);
+  bgGain.gain.setValueAtTime(bgGain.gain.value,now);
+  bgGain.gain.linearRampToValueAtTime(to,now+(ms||900)/1000);
+}
+
+function fadeMusic(to,ms){
+  bgWanted=to;
+  if(bgReady)rampMusic(to,ms);
+}
+
+function startMusic(){
+  if(worldIsSilent())return;    
+  bgWanted=BG_MUSIC_VOLUME;
+  initGaplessMusic();
+  if(bgCtx&&bgCtx.state==='suspended')bgCtx.resume();
+  
+  fadeMusic(BG_MUSIC_VOLUME,1800);
+}
+
+function worldIsSilent(){
+  return hasFlag('effigy_burned')&&!document.body.classList.contains('finale');
+}
+
+function updateMusicFor(zoneId){
+  var silent=worldIsSilent()||!!(zoneId&&MUSIC_SILENT_ZONES[zoneId]);
+  if(bgReady){
+    if(bgCtx&&bgCtx.state==='suspended')bgCtx.resume();
+    fadeMusic(silent?0:BG_MUSIC_VOLUME,silent?700:900);
+    return;
+  }
+  fadeMusic(silent?0:BG_MUSIC_VOLUME,silent?700:900);
+}
+
+function unlockAudio(){
+  ['voice-audio','sfx-audio','get-audio','ui-audio','chop-audio','ambient-audio'].forEach(function(id){
+    var a=document.getElementById(id);
+    if(!a)return;
+    
+    function settle(){
+      if(!a.getAttribute('data-src')){a.pause();a.currentTime=0;}
+      a.muted=false;
+    }
+    try{
+      a.muted=true;
+      var p=a.play();
+      if(p&&p.then)p.then(settle).catch(function(){a.muted=false;});
+      else settle();
+    }catch(e){a.muted=false;}
+  });
+}
+
+function enterWorld(){
+  unlockAudio();
+  startMusic();
+  state.phase='entering';
+  
+  el.mapScreen.style.display='none';
+  document.body.classList.remove('on-map');
+  setTimeout(function(){el.overseer.classList.add('hidden')},1200);
+  
+  setTimeout(function(){
+    el.world.style.transition='none';
+    el.world.style.filter='none';
+    state.wo={x:0,y:0};
+    applyWorldTransform();
+    var inv=document.getElementById('inventory');
+    if(inv)inv.classList.add('visible');
+    state.phase='exploring';
+    openZone('cliffs');
+  },2000);
+}
+
+function waitForSceneReady(maxMs){
+  if(!sceneUp)return Promise.resolve();
+  return Promise.race([
+    sceneUp,
+    new Promise(function(r){setTimeout(r,maxMs||20000)})
+  ]);
+}
+
+function prefetchScenes(){
+  var seen={}, queue=[];
+  function push(u){ if(u&&!seen[u]){seen[u]=1;queue.push(u);} }
+  
+  ['cliffs','cave','forest','swamp','cistern','desert','croc','cabin']
+    .forEach(function(z){
+      (sceneLayers[z]||[]).forEach(function(L){
+        if(L.video)      push(v(ASSET+encodeURI(L.video)));
+        else if(L.alpha) push(encodeURI(alphaSrc(L.alpha)));
+        else if(L.img)   push(v(ASSET+encodeURI(L.img)));
+      });
+    });
+  push(v(MAP_ART_POSTGAME));          
+
+  var i=0, live=0, MAX=1;
+  prefetchPump=function(){
+    
+    if(prefetchHeld)return;
+    while(live<MAX&&i<queue.length){
+      live++;
+      var ctl=(typeof AbortController!=='undefined')?new AbortController():null;
+      if(ctl)prefetchLive.push(ctl);
+      fetch(queue[i++],{cache:'force-cache',signal:ctl?ctl.signal:undefined})
+        .then(function(r){return r.blob();})   
+        .catch(function(){})
+        .then(function(){
+          if(ctl){var k=prefetchLive.indexOf(ctl); if(k>-1)prefetchLive.splice(k,1);}
+          live--; prefetchPump();
+        });
+    }
+  };
+  prefetchPump();
+}
+
+var prefetchHeld=false, prefetchLive=[], prefetchPump=null;
+function holdPrefetch(){
+  prefetchHeld=true;
+  prefetchLive.splice(0).forEach(function(c){ try{c.abort();}catch(e){} });
+}
+function releasePrefetch(){
+  prefetchHeld=false;
+  if(prefetchPump)prefetchPump();
+}
+
+var sceneUp=null, sceneUpResolve=function(){};
+
+function stageSceneMedia(){
+  
+  sceneUp=null;
+  var settleSceneUp=null;
+  sceneUp=new Promise(function(r){ settleSceneUp=r; });
+  sceneUpResolve=function(){
+    if(!settleSceneUp)return;
+    var r=settleSceneUp; settleSceneUp=null; r();
+  };
+
+  var nodes=[].slice.call(el.zoneScene.querySelectorAll('.scene-layer'))
+    .filter(plateShown);
+  if(!nodes.length){ sceneUpResolve(); return; }
+  var bg=nodes[0];                 
+  var bgUp=false;
+  var forScene=currentSceneId;
+
+  function ready(n){
+    
+    return n.tagName==='IMG' ? (n.complete&&n.naturalWidth>0) : n.readyState>=3;
+  }
+  function show(n){ n.classList.remove('pending'); }
+  function sweep(){
+    
+    if(!bgUp)return;
+    nodes.forEach(function(n){ if(ready(n))show(n); });
+  }
+  function arrived(n){
+    if(currentSceneId!==forScene)return;   
+    
+    if(n.__released)return;
+    if(n===bg)bgUp=true;
+    sweep();
+    if(allUp()){ clearSceneFailure(); hideLoadingCue(); sceneUpResolve(); warmHiddenLayers(); }
+  }
+  function allUp(){ return nodes.every(ready); }
+
+  nodes.forEach(function(n){
+    n.classList.add('pending');
+    if(ready(n)){ arrived(n); return; }
+    
+    ['canplay','loadeddata','load'].forEach(function(e){
+      n.addEventListener(e,function(){arrived(n)},{once:true});
+    });
+  });
+
+  if(allUp()){ sceneUpResolve(); warmHiddenLayers(); return; }
+
+  function failIfStillHere(){
+    if(currentSceneId!==forScene)return;   
+    if(allUp())return;
+    failSceneLoad();
+  }
+  nodes.forEach(function(n){
+    
+    n.addEventListener('error',function(){
+      if(n.__released)return;              
+      if(n.dataset.retried)failIfStillHere();
+    });
+  });
+  sceneFailTimer=setTimeout(failIfStillHere,15000);
+}
+
+var sceneFailTimer=null;
+
+var finaleRetry=null;
+function clearSceneFailure(){
+  if(sceneFailTimer){clearTimeout(sceneFailTimer);sceneFailTimer=null;}
+  var f=document.getElementById('scene-failed');
+  if(f){f.classList.remove('vis');setTimeout(function(){f.classList.remove('show')},400);}
+}
+function failSceneLoad(){
+  if(sceneFailTimer){clearTimeout(sceneFailTimer);sceneFailTimer=null;}
+  hideLoadingCue();
+  
+  sceneUpResolve();
+  var f=document.getElementById('scene-failed');
+  if(!f){closeZone();return;}          
+  f.classList.add('show');
+  setTimeout(function(){f.classList.add('vis')},20);
+}
+(function(){
+  var f=document.getElementById('scene-failed');
+  if(!f)return;
+  f.querySelector('.sf-retry').addEventListener('click',function(){
+    if(finaleRetry){
+      var again=finaleRetry; finaleRetry=null;
+      clearSceneFailure();
+      again();
+      return;
+    }
+    var id=currentSceneId;
+    clearSceneFailure();
+    if(!id)return;
+    
+    openZone(id,true);
+  });
+  f.querySelector('.sf-back').addEventListener('click',function(){
+    clearSceneFailure();
+    closeZone();
+  });
+})();
+
+function guardSceneMedia(){
+  [].forEach.call(el.zoneScene.querySelectorAll('video,img'),function(n){
+    n.addEventListener('error',function(){
+      if(n.__released)return;    
+      if(n.dataset.retried)return;
+      n.dataset.retried='1';
+      var src=n.getAttribute('src');
+      setTimeout(function(){
+        n.setAttribute('src',src+(src.indexOf('?')>-1?'&':'?')+'retry=1');
+        if(n.tagName==='VIDEO'){n.load();var p=n.play();if(p&&p.catch)p.catch(function(){});}
+      },700);
+    },{once:true});
+  });
+}
+
+function warmHiddenLayers(){
+  [].forEach.call(el.zoneScene.querySelectorAll('video'),function(n){
+    if(plateShown(n)||n.__released)return;
+    if(n.preload!=='auto'){
+      n.preload='auto';
+      try{n.load();}catch(e){}
+    }
+    if(n.__armedIdle)return;
+    n.__armedIdle=1;
+    function park(){
+      if(plateShown(n)||n.__released)return;
+      try{n.pause();}catch(e){}
+      try{ if(n.currentTime>0.001)n.currentTime=0; }catch(e){}
+    }
+    if(n.readyState>=2)park();
+    else n.addEventListener('loadeddata',park,{once:true});
+  });
+}
+
+function resumeSceneVideos(){
+  if(!el.zoneScene)return;
+  [].forEach.call(el.zoneScene.querySelectorAll('video'),function(v){
+    if(!plateShown(v))return;
+    if(v.__released||v.__swapOut)return;
+    if(v.ended||!v.paused)return;            
+    var p=v.play(); if(p&&p.catch)p.catch(function(){});
+  });
+}
+
+setInterval(resumeSceneVideos,1000);
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden)resumeSceneVideos();
+});
+
+document.addEventListener('pointerdown',resumeSceneVideos,true);
+document.addEventListener('touchend',resumeSceneVideos,true);
+
+function keepAmbientAlive(){
+  var a=document.getElementById('ambient-audio');
+  if(!a||!a.getAttribute('data-src'))return;   
+  if(worldIsSilent()||!a.paused)return;
+  var p=a.play(); if(p&&p.catch)p.catch(function(){});
+}
+setInterval(keepAmbientAlive,1000);
+document.addEventListener('pointerdown',keepAmbientAlive,true);
+document.addEventListener('touchend',keepAmbientAlive,true);
+
+function warmLayer(n){
+  if(!n||n.tagName!=='VIDEO')return;
+  
+  if(plateShown(n))return;
+  if(n.preload!=='auto'){
+    n.preload='auto';
+    try{n.load();}catch(e){}
+  }
+}
+
+var loadingCue=null;
+function showLoadingCue(){
+  var n=document.getElementById('loading-note');
+  if(n)n.classList.add('show');
+  document.body.classList.add('holding');
+}
+function hideLoadingCue(){
+  if(loadingCue){clearTimeout(loadingCue);loadingCue=null;}
+  var n=document.getElementById('loading-note');
+  if(n)n.classList.remove('show');
+  document.body.classList.remove('holding');
+}
+
+function transitionTo(t,setup,done,waitFor){
+  el.curtain.classList.add('closing');
+  document.body.classList.add('veiled');
+  holdPrefetch();                 
+  setTimeout(function(){
+    setup();
+    
+    if(loadingCue)clearTimeout(loadingCue);
+    loadingCue=setTimeout(showLoadingCue,5000);
+    (waitFor?waitFor():Promise.resolve()).then(function(){
+      
+      if(!el.zoneScene.querySelector('.scene-layer.pending'))hideLoadingCue();
+      setTimeout(function(){
+        el.curtain.classList.remove('closing');
+        el.curtain.classList.add('opening');
+        document.body.classList.remove('veiled');
+        if(done)done();
+        setTimeout(function(){el.curtain.classList.remove('opening')},700);
+        
+        setTimeout(warmHiddenLayers,1200);
+        setTimeout(releasePrefetch,1500);
+      },180);
+    });
+  },650);
+}
+
+async function craftEffigySequence(){
+  
+  addItem('effigy');
+  prepFinaleVideo();            
+  setFlag('effigy_given');
+  
+  await say('M','OHHHH. Ohh hoh hoh. You brought them. You actually brought them.');
+  mCrafting=true;
+  
+  refreshScene(function(){ setCraftFocus(true); });
+  await say('M','Tkk tkk tkk tkk tkk...');
+  await say('M',"finally! after all this time… it's actually finished. it's done.");
+  await say('','You feel your blood quicken.');
+  await announceItem('M','effigy');
+  
+  mCrafting=false;
+  refreshScene();
+  setCraftFocus(false);
+  await say('M','take it to the heart.');
+  markZoneExhausted();
+}
+
+async function runGiveAxe(){
+  
+  removeItem('axe');
+  setFlag('butcher_has_axe');
+  setFlag('butcher_left');
+  playSfx('audio/ITEMS/GIVE/AXE_GIVE.m4a',1);
+  await say('Butcher','About time. About time about time.');
+  await say('Butcher',"i need to figure this out.");
+  
+  leaveSceneLayer('CAVE_BUTCHER');
+  line('','He shoulders the axe and quickly walks out without a word.');
+  await wait(900);                      
+  butcherWalkedOut=true;                
+  vanishSceneLayer('CAVE_BUTCHER');
+  refreshScene();
+  await waitForAdvance();
+  
+  await say('','You feel uneasy inside the cave alone.');
+  await say('', hasFlag('met_jester')
+    ? 'The cave is now quiet. A spool of thread sits in the corner. This must be what the Jester was asking for.'
+    : 'The cave is now quiet. A spool of thread sits in the corner.');
+  spoolOffered=true;                    
+  refreshScene();
+  markZoneExhausted();
+}
+
+async function runGiveThread(){
+  
+  removeItem('thread');
+  setFlag('jester_got_thread');
+  playSfx('audio/ITEMS/GIVE/SPOOL_GIVE.m4a',1);
+  addItem('snail_stew');
+  await say('Jester','Magnificent. Here, take this. You\'ve earned it.');
+  await announceItem('Jester','snail_stew');
+  await say('You','...thanks.');
+  await say('','You feel beguiled.');
+  markZoneExhausted();
+}
+
+async function runGiveWater(){
+  
+  removeItem('water');
+  playSfx('audio/ITEMS/GIVE/WATER_BUCKET_GIVE.m4a',1);
+  addItem('diamond_necklace');
+  setFlag('shadow_left');
+  
+  surgeSceneLayer('DESERT_SHADOW');
+  await say('','He takes it. Drinks without a word. For a long moment, nothing.');
+  await say('Shadow','I STOLE THIS FROM MY MOTHER. CAN YOU RETURN IT? I CAN\'T BEAR TO SEE HER FACE.');
+  
+  await say('','You feel something cold pressing into your hand and the shadow returns into the dust.',null,'Shadow_Leaves');
+  
+  fadeSceneLayer('DESERT_SHADOW');
+  await wait(1700);
+  await announceItem('Shadow','diamond_necklace');
+  markZoneExhausted();
+}
+
+var M_TRIBUTES=[
+  {item:'snail_stew',       flag:'gave_snail_stew',       line:'Tkk tkk... the snail makes the broth... shhk...'},
+  {item:'crows_feather',    flag:'gave_crows_feather',    line:'Nkk nkk... the crow drops what it carries... prrsh...'},
+  {item:'diamond_necklace', flag:'gave_diamond_necklace', line:'Mmmnah... the stone that hangs from the neck... tsssk...'}
+];
+function mMissingLines(){
+  return M_TRIBUTES.filter(function(t){return !hasFlag(t.flag)})
+                   .map(function(t){return t.line});
+}
+
+function mHasTribute(){
+  return M_TRIBUTES.some(function(t){return hasItem(t.item)&&!hasFlag(t.flag)});
+}
+
+async function mAsksForRest(){
+  var missing=mMissingLines();
+  if(!missing.length||mHasTribute())return;
+  await waitForAdvance();
+  for(var i=0;i<missing.length-1;i++) await say('M',missing[i]);
+  
+  await line('M',missing[missing.length-1]);
+}
+
+async function runGiveToM(item){
+  removeItem(item);
+  setFlag('gave_'+item);
+  var given=['gave_snail_stew','gave_crows_feather','gave_diamond_necklace'].filter(hasFlag).length;
+  
+  playSfx('audio/ITEMS/GIVE/EFFIGY_CREATION_'+(given<10?'0':'')+given+'.m4a',1);
+  var have=given===3;
+  if(!have){
+    
+    await line('M','Tkk... yes. Yes. Shhk. Put it down.');
+    
+    await mAsksForRest();
+    markZoneExhausted();
+    return;
+  }
+  await craftEffigySequence();
+}
+
+async function runLightEffigy(){
+  await burnEffigySequence();
+}
+
+var CROC_STATES={
+  intro:{
+    voice:'Croc_Sleeping',
+    feel:'You feel your heart begin to race.',
+    lines:[
+      "The crocodile's breathing is deep and steady. Its jaw is slack.",
+      "It is exactly where it was. Breathing deep and steady, jaw slack, feather where you left it.",
+      "Still here. Still asleep. Still holding the only thing you came for."
+    ],
+    options:[
+      {label:"Grab the Crocodile's tail", to:'aggressive',
+       says:"You take hold of the tail. It is colder than you expected. The tail swings violently, pushing you back."},
+      {label:'Reach slowly from above', to:'aggressive',
+       says:"Your shadow crosses its face on the way down. The breathing stops."},
+      {label:'Hum gently to open the jaw wider', to:'passive',
+       says:"You hum. Low, and badly. The jaw eases open another inch."}
+    ]
+  },
+  aggressive:{
+    voice:'Croc_Disturbed',
+    lines:[
+      "The jaw sits open wider than it did. The breath coming out of it is slow and warm and smells of meat, and the water has gone very quiet.",
+      "It is watching you again. Whatever credit you had, you have spent.",
+      "The jaw comes open a third time, wider than either before it. This time with anger."
+    ],
+    options:[
+      {label:'Ask it nicely', to:'passive',
+       says:"“Please,” you say, out loud, to a crocodile. Absurdly, the jaw settles."},
+      {label:'Grip the feather and pull quickly', to:'dark',
+       says:"You grab the feather and pull. The jaw CLAMPS shut. You stumble backward as it lurches toward you. Everything goes dark."},
+      {label:'Slide fingers along the lower teeth', to:'dark',
+       says:"You lay your fingers along the lower teeth like keys. The jaw CLAMPS shut. You stumble backward as it lurches toward you. Everything goes dark."}
+    ]
+  },
+  passive:{
+    voice:'Croc_Sleeping',
+    zoom:true,
+    lines:[
+      
+      "Whatever it was waiting for, it has stopped waiting. The breathing lengthens, and lengthens.",
+      "It settles again. The jaw drifts open on its own.",
+      "Calm comes back, slower this time. The feather rises and falls with its breath."
+    ],
+    options:[
+      {label:'Wait for a deeper breath', to:'solved'},
+      {label:'Slide fingers along the lower teeth', to:'aggressive',
+       says:"You reach in. The teeth are warm, which you had not prepared for. The breathing changes."},
+      {label:'Pet the crocodile', to:'aggressive',
+       says:"You pet the crocodile. It does not seem to mind, at first."}
+    ]
+  }
+};
+
+var crocSeen={};
+
+function crocState(){ return CROC_STATES[gameState.crocState]?gameState.crocState:'intro'; }
+function crocLineFor(key){
+  var st=CROC_STATES[key], n=crocSeen[key]||0;
+  crocSeen[key]=n+1;
+  return st.lines[Math.min(n,st.lines.length-1)];
+}
+
+function crocFrame(){ return document.getElementById('zone-frame'); }
+
+function setCrocFocus(on){
+  var f=crocFrame();
+  if(f)f.classList.toggle('croc-focus',!!on);
+}
+
+function setCraftFocus(on){
+  var f=crocFrame();
+  if(f)f.classList.toggle('craft-focus',!!on);
+}
+
+function lungeScene(){
+  var f=crocFrame();
+  if(f)f.classList.add('scene-lunge');
+}
+
+function clearCrocView(){
+  var f=crocFrame();
+  if(f)f.classList.remove('croc-focus','scene-lunge','craft-focus');
+  var b=document.getElementById('scene-blackout');
+  if(b)b.classList.remove('going','instant');
+  document.body.classList.remove('scene-dark');
+  crocBox(true);
+  crocSeen={};
+}
+
+function crocBox(show){
+  var box=document.getElementById('dialogue-box');
+  if(box)box.style.visibility=show?'':'hidden';
+}
+
+function showCrocRound(){
+  var key=crocState(), st=CROC_STATES[key];
+  if(st.zoom)setCrocFocus(true);
+  crocBox(true);
+  
+  var first=(crocSeen[key]||0)===0;
+  line('',crocLineFor(key),null,st.voice).then(function(){
+    return waitForAdvance();
+  }).then(function(){
+    
+    if(!first||!st.feel)return;
+    return line('',st.feel).then(waitForAdvance);
+  }).then(function(){
+    showCrocChoices(st.options);
+  });
+}
+
+function showCrocChoices(options){
+  
+  var said=el.charText.textContent;
+  if(said&&said.trim())addMessage('npc','',said);
+  el.charText.innerHTML='';
+  el.charName.textContent='';
+  crocBox(false);
+
+  el.choices.innerHTML='';
+  options.forEach(function(o){
+    var btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.textContent=o.label;
+    btn.addEventListener('click',function(){handleCrocChoice(o);});
+    el.choices.appendChild(btn);
+  });
+  el.choices.classList.add('active');
+}
+
+function thrownOut(text,voiceKey){
+  var b=document.getElementById('scene-blackout');
+  if(b)b.classList.add('going');
+  document.body.classList.add('scene-dark');
+  return line('',text,18,voiceKey).then(function(){
+    return wait(3000);                  
+  }).then(function(){
+    document.getElementById('dialogue-wrap').classList.add('dim');
+    return wait(800);
+  }).then(function(){
+    closeZone();
+  });
+}
+
+function askChoice(options){
+  var gen=sceneGen;
+  return new Promise(function(resolve){
+    el.choices.innerHTML='';
+    options.forEach(function(o){
+      var btn=document.createElement('button');
+      btn.className='choice-btn';
+      btn.textContent=o.label;
+      btn.addEventListener('click',function(){
+        el.choices.classList.remove('active');
+        el.choices.innerHTML='';
+        if(gen!==sceneGen)return;   
+        resolve(o);
+      });
+      el.choices.appendChild(btn);
+    });
+    el.choices.classList.add('active');
+  });
+}
+
+function crocHeldBreath(){
+  el.charName.textContent='';
+  el.charText.classList.remove('action');
+  return typewrite(el.charText,'... ... ... ...',260);
+}
+
+function handleCrocChoice(opt){
+  var to=opt.to;
+  el.choices.classList.remove('active');
+  el.choices.innerHTML='';
+  crocBox(true);
+
+  if(to==='solved'){
+    gameState.crocState='intro';
+    saveGame();
+    crocHeldBreath().then(function(){
+      return wait(900);
+    }).then(function(){
+      
+      return line('','The jaw slackens. The feather is loose between its teeth, there for the taking.',null,'Croc_Sleeping');
+    }).then(function(){
+      setFlag('croc_solved');
+      refreshScene();           
+    });
+    return;
+  }
+
+  if(to==='dark'){
+    
+    gameState.crocState='intro';
+    saveGame();
+    
+    lungeScene();
+    thrownOut(opt.says,'Croc_Dark');
+    return;
+  }
+
+  gameState.crocState=to;
+  saveGame();
+  
+  refreshScene(function(){ if(to!=='passive')setCrocFocus(false); });
+  line('',opt.says,null,CROC_STATES[to].voice).then(function(){
+    return waitForAdvance();
+  }).then(function(){
+    addMessage('npc','',el.charText.textContent);
+    showCrocRound();
+  });
+}
+
+function wait(ms){return sceneDelay(ms);}
+
+function typeInto(node,text,speed){
+  return new Promise(function(resolve){
+    var i=0;
+    var iv=setInterval(function(){
+      if(!node.parentNode){clearInterval(iv);resolve();return;}
+      if(i<text.length){node.textContent=text.slice(0,++i);}
+      else{clearInterval(iv);resolve();}
+    },speed||42);
+  });
+}
+
+var lastKkPos=null;
+
+var kkBandTop=Math.random()<0.5;
+
+var kkVoiceIdx=0;
+function playKidVoice(){
+  var clips=VOICE_CLIPS['Kid Knot']||[];
+  var src=clips[kkVoiceIdx++ % clips.length];
+  if(src)playSfx(src,1,'get-audio');   
+}
+
+function floatKidLine(text,hold){
+  var host=document.getElementById('kk-lines');
+  var n=document.createElement('div');
+  n.className='kk-line';
+  n.textContent='';
+  kkBandTop=!kkBandTop;
+  
+  var x=42+Math.random()*16;                 
+  var y=kkBandTop ? 30+Math.random()*9       
+                  : 56+Math.random()*9;      
+  n.style.left=x+'%';
+  n.style.top=y+'%';
+  n.style.transform='translate(-50%,-50%) rotate('+(Math.random()*5-2.5).toFixed(1)+'deg)';
+  host.appendChild(n);
+  n.classList.add('vis');
+  playKidVoice();                            
+
+  var FADE_OUT=1100;
+  var typed=typeInto(n,text,KK_TYPE_SPEED);
+  var life=typed
+    .then(function(){return wait((hold||KK_HOLD)*1000);})
+    .then(function(){
+      n.classList.add('fading');
+      return wait(FADE_OUT).then(function(){n.remove()});
+    });
+  return {typed:typed,life:life};
+}
+
+var FINALE_VIDEO='art/HEART_FINALE.mp4';   
+
+var KK_LINES=[
+  'HAHAHAHA I WAS IN THERE FOR SO LONG',
+  'I had a dream I was a worm and then I WAS a worm and then I forgot what arms were',
+  'Hey hey hey, is the sky still up there? It better be. I called dibs',
+  'I tried to count the rocks but they kept switching places when I blinked',
+  'you thought I could be crystallized HAHA',
+  "I wanted to wear tie, but then i remembered i'm ₛₚₗᵢₜₛdᵣₑgₙᵢₛₕ"
+];
+
+var KK_LAST='Everything smells like Tuesday';
+var KK_SLOTS=[14.0,19.0,23.8];   
+var KK_HOLD=2.0;                 
+var KK_TYPE_SPEED=38;            
+
+var KK_OUTRO_AT=35.0;            
+
+function buildKidCues(){
+  var pool=KK_LINES.slice();
+  for(var i=pool.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1)),t=pool[i];pool[i]=pool[j];pool[j]=t;
+  }
+  
+  var chosen=pool.slice(0,KK_SLOTS.length-1).concat(KK_LAST);
+  var cues=KK_SLOTS.map(function(at,i){return {at:at,line:chosen[i],hold:KK_HOLD};});
+  cues.push({at:KK_OUTRO_AT,outro:true});
+  return cues;
+}
+var KK_CUES=buildKidCues();
+
+var finaleFade=null;
+function fadeInFinaleAudio(v,ms){
+  
+  if(finaleFade){clearInterval(finaleFade);finaleFade=null;}
+  v.volume=1;
+}
+
+function rewindFinale(v,tries){
+  if(!v||v.currentTime<=1)return;
+  try{ v.currentTime=0; }catch(e){}
+  if(v.currentTime>1&&(tries||0)<10)
+    setTimeout(function(){ rewindFinale(v,(tries||0)+1); },200);
+}
+
+function prepFinaleVideo(){
+  var v=document.getElementById('kk-video');
+  if(!v||v.getAttribute('src'))return;
+  v.preload='auto';
+  v.src=v_(FINALE_VIDEO);
+  try{v.load();}catch(e){}
+}
+
+var finalePrimed=false;
+function primeFinaleVideo(){
+  if(finalePrimed)return;
+  if(!hasItem('effigy')||hasFlag('effigy_burned'))return;
+  if(document.body.classList.contains('finale'))return;
+  var v=document.getElementById('kk-video');
+  if(!v)return;
+  finalePrimed=true;
+  prepFinaleVideo();
+  v.muted=true;
+  var stopped=false,guard=null;
+  function back(){
+    if(stopped)return; stopped=true;
+    clearTimeout(guard);
+    v.removeEventListener('timeupdate',onTime);
+    try{v.pause();}catch(e){}
+    
+    try{v.currentTime=0;}catch(e){}
+    rewindFinale(v);
+  }
+  
+  function onTime(){ if(v.currentTime>0)back(); }
+  v.addEventListener('timeupdate',onTime);
+  guard=setTimeout(back,1500);
+  var p=v.play();
+  if(p&&p.then)p.then(back,function(){
+    clearTimeout(guard);
+    v.removeEventListener('timeupdate',onTime);
+    finalePrimed=false;
+  });
+  else back();
+}
+document.addEventListener('pointerdown',primeFinaleVideo,true);
+document.addEventListener('touchend',primeFinaleVideo,true);
+
+function startFinaleVideo(v){
+  return new Promise(function(resolve){
+    if(!v)return resolve(false);
+    var settled=false,dead=false;
+    function done(ok){
+      if(settled)return; settled=true;
+      if(!ok)dead=true;
+      resolve(ok);
+    }
+    
+    var shown=false,paintPoll=null;
+    
+    function reveal(){
+      if(shown||dead)return; shown=true;
+      if(paintPoll){clearInterval(paintPoll);paintPoll=null;}
+      v.classList.add('vis');
+      document.body.classList.add('finale-video');
+    }
+    var unmuted=false;
+    function unmute(){
+      if(unmuted)return; unmuted=true;
+      v.muted=false;
+      fadeInFinaleAudio(v,2600);
+      done(true);
+    }
+    var rewound=false;
+    function start(){
+      if(dead)return;
+      
+      if(!rewound){ rewound=true; rewindFinale(v); }
+      if(!unmuted){ v.muted=true; v.volume=0; }
+      var p=v.play();
+      if(p&&p.then){
+        
+        p.then(unmute).catch(failFinale);
+      }else{unmute();}
+    }
+
+    v.addEventListener('error',function(){ failFinale(); });
+    v.addEventListener('loadeddata',function(){
+      
+      start();
+      
+      if(v.requestVideoFrameCallback)v.requestVideoFrameCallback(function(){reveal();});
+    },{once:true});
+    
+    paintPoll=setInterval(function(){
+      if(shown)return;
+      if(v.readyState>=2&&!v.seeking&&v.currentTime>0)reveal();
+    },32);
+    
+    if(!v.getAttribute('src')){
+      v.src=v_(FINALE_VIDEO);
+      v.load();
+    }else if(v.readyState>=2){
+      
+      v.dispatchEvent(new Event('loadeddata'));
+    }
+    
+    start();
+    
+    var loadCheck=null;
+    function failFinale(){
+      if(shown)return;
+      clearTimeout(loadCheck);
+      var f=document.getElementById('scene-failed');
+      if(!f||f.classList.contains('show'))return;
+      f.classList.add('finale-fail');
+      finaleRetry=function(){
+        f.classList.remove('finale-fail');
+        try{ v.pause(); }catch(e){}
+        
+        v.src=v_(FINALE_VIDEO)+'&retry='+Date.now();
+        try{ v.load(); }catch(e){}
+        start();
+        armLoadCheck();
+      };
+      f.classList.add('show');
+      setTimeout(function(){f.classList.add('vis')},20);
+    }
+    function armLoadCheck(){
+      clearTimeout(loadCheck);
+      
+      loadCheck=setTimeout(function(){ if(!shown)failFinale(); },25000);
+    }
+    armLoadCheck();
+  });
+}
+
+function runCuedFinale(v){
+  return new Promise(function(resolve){
+    var fired=[],pending=[],ended=false;
+    var iv=setInterval(function(){
+      var t=v.currentTime;
+      KK_CUES.forEach(function(c,i){
+        if(fired[i]||t<c.at)return;
+        fired[i]=true;
+        if(c.outro){finish();return;}
+        pending.push(floatKidLine(c.line,c.hold||KK_HOLD).life);
+      });
+      if(!ended&&v.ended)finish();
+    },50);
+    function finish(){
+      if(ended)return;
+      ended=true;
+      clearInterval(iv);
+      Promise.all(pending).then(resolve);
+    }
+    v.addEventListener('ended',finish,{once:true});
+  });
+}
+
+async function runUntimedFinale(){
+  await wait(1100);
+  var pending=[];
+  for(var i=0;i<KK_CUES.length;i++){
+    if(!KK_CUES[i].line)continue;
+    var ctl=floatKidLine(KK_CUES[i].line);
+    pending.push(ctl.life);
+    await ctl.typed;
+    await wait(520);
+  }
+  await Promise.all(pending);
+  await wait(900);
+}
+
+async function showKidKnot(){
+  document.body.classList.add('finale');
+  cancelAdvance();
+  
+  preloadPostgameMap();
+
+  var v=document.getElementById('kk-video');
+  var hasVideo=await startFinaleVideo(v);
+  if(hasVideo) await runCuedFinale(v);
+  else         await runUntimedFinale();
+
+  gameState.complete=true;
+  saveGame();
+  el.world.classList.add('blood');
+  document.body.classList.add('postgame');
+  document.getElementById('kk-outro').classList.add('vis');
+
+  var back=document.querySelector('#kk-outro .kk-back');
+  function revealBack(){ back.classList.add('vis'); }
+  if(v&&v.getAttribute('src')&&!v.ended){
+    v.addEventListener('ended',revealBack,{once:true});
+  }else{
+    revealBack();
+  }
+}
+
+function updateMapArt(){
+  var m=document.querySelector('.map-art');
+  if(!m)return;
+  var want=v(hasFlag('effigy_burned')?MAP_ART_POSTGAME:MAP_ART);
+  if(m.getAttribute('src')!==want)m.setAttribute('src',want);
+}
+
+function preloadPostgameMap(){
+  var img=new Image();
+  img.src=v(MAP_ART_POSTGAME);
+}
+
+function exitFinale(){
+  var v2=document.getElementById('kk-video');
+  if(v2)v2.pause();
+  var o=document.getElementById('kk-outro');
+  o.classList.remove('vis');
+  
+  updateMapArt();
+  setTimeout(function(){
+    var stage=document.getElementById('kk-stage');
+    if(stage)stage.style.display='none';
+    document.body.classList.remove('finale','finale-video');
+    closeZone();
+  },900);
+}
+
+async function burnEffigySequence(){
+  
+  if(!hasItem('effigy')||!hasItem('match'))return;
+  
+  playSfx('audio/ITEMS/GIVE/MATCH_USE.m4a',1);
+  
+  setFlag('effigy_burned');
+  removeItem('effigy');
+  removeItem('match');
+  
+  stopAmbient(900);
+  renderInventory();
+  
+  await showKidKnot();
+}
+
+function seq(stem,n){
+  var out=[];
+  for(var i=1;i<=n;i++)out.push('audio/'+stem+'_'+(i<10?'0':'')+i+'.m4a');
+  return out;
+}
+var VOICE_CLIPS={
+  'M':                seq('CHARACTERS/M/M',11),
+  'Butcher':          seq('CHARACTERS/BUTCHER/BUTCHER',5),
+  'Shadow':           seq('CHARACTERS/SHADOW/SHADOW',5),
+  'Jester':           seq('CHARACTERS/JESTER/JESTER',8),
+  'Kid Knot':        seq('CHARACTERS/KID_KNOT/KID_KNOT',3),
+  'The Wishing Well': seq('CHARACTERS/WISHING_WELL/WISHING_WELL',4)
+};
+
+var WATER_WORDS=[
+  
+  'water','waters','h2o','aqua','liquid','fluid','moist','moisture','wet',
+  'dew','hydrat',                 
+  
+  'drink','drank','drunk','sip','sipping','gulp','swig','guzzle','swallow',
+  'quench','thirst','thirsty',
+  
+  'bucket','pail','bail','flask','canteen','bottle','vessel',
+  
+  'fountain',
+
+  'watter','watre','watr','wter','waer','wataer','wather',   
+  'h20','aqau','aquq','acqua',                               
+  'liqui','liqiud','likwid','liquied',                       
+  'fliud','flud',                                            
+  'moiture','moistur','mositure',                            
+  'hidrat','hydrait','hydrait',                              
+  'drnk','dirnk','drikn','drinl',                            
+  'thrist','thristy','thirsy','thirtsy','thisty','thrsty',   
+  'quinch','quech','qunech',                                 
+  'swalow','swallo',                                         
+  'guzle','guzzel',                                          
+  'buckit','bucekt','buket','bukket','bucke',                
+  'paill','payl',                                            
+  'flasl','flsk','falsk',                                    
+  'canten','cantine','canteem',                              
+  'botle','bottel','bottal','bottl',                         
+  'vessle','vesel','vessal',                                 
+  'fountian','fontain','fountin','fountaine'                 
+];
+
+var WATER_EXACT=['jug','jugs'];
+
+var PALE_RE=/\b(?:a|an|the|my|one|that|this|some)\s+pale\b|\bpale\s+of\b|\bpales\b/i;
+
+var WATER_RE=new RegExp('\\b(?:'+WATER_WORDS.join('|')+')','i');
+var WATER_EXACT_RE=new RegExp('\\b(?:'+WATER_EXACT.join('|')+')\\b','i');
+function asksForWater(t){
+  return WATER_RE.test(t)||WATER_EXACT_RE.test(t)||PALE_RE.test(t);
+}
+
+var VOICE_SPECIAL={
+  Butcher_Angry:  seq('CHARACTERS/BUTCHER/BUTCHER_ANGRY',3),
+  Shadow_Thirsty: seq('CHARACTERS/SHADOW/SHADOW_THIRSTY',3),
+  Shadow_Leaves:  'audio/CHARACTERS/SHADOW/SHADOW_DISAPPEARS.m4a',
+  Croc_Sleeping:  seq('CHARACTERS/CROC/CROC_SLEEPING',2),
+  Croc_Disturbed: seq('CHARACTERS/CROC/CROC_DISTURBED',3),
+  Croc_Dark:      'audio/CHARACTERS/CROC/CROC_EVERYTHING_GOES_DARK.m4a',
+  
+  Well_Laugh:     seq('CHARACTERS/WISHING_WELL/WISHING_WELL_LAUGH',3),
+  
+  M_Intro:        'audio/CHARACTERS/M/M_INTRO.m4a'
+};
+
+var lastVoicePick={};            
+var currentVoice=null;           
+var voiceArmed=false;            
+
+function armVoice(speaker,key){
+  currentVoice={speaker:speaker||null,key:key||null};
+  voiceArmed=true;
+}
+var voiceToken=0;                
+
+function pickFrom(list,memo){
+  if(!list||!list.length)return null;
+  if(list.length===1)return list[0];
+  var i,guard=0;
+  do{ i=Math.floor(Math.random()*list.length); }
+  while(list[i]===lastVoicePick[memo]&&++guard<8);
+  lastVoicePick[memo]=list[i];
+  return list[i];
+}
+
+function pickVoiceSrc(ctx){
+  if(ctx&&ctx.key&&VOICE_SPECIAL[ctx.key]){
+    var sp=VOICE_SPECIAL[ctx.key];
+    return typeof sp==='string' ? sp : pickFrom(sp,ctx.key);
+  }
+  var list=ctx&&ctx.speaker?VOICE_CLIPS[ctx.speaker]:null;
+  return pickFrom(list,ctx&&ctx.speaker);
+}
+
+function voicePoolFor(ctx){
+  if(ctx&&ctx.key&&VOICE_SPECIAL[ctx.key]){
+    var sp=VOICE_SPECIAL[ctx.key];
+    return (typeof sp==='string')?null:sp;
+  }
+  return (ctx&&ctx.speaker)?VOICE_CLIPS[ctx.speaker]:null;
+}
+
+var VOICE_VOLUME=1;   
+var VOICE_FADE_MS=320;
+var voiceFade=null;              
+var voiceChainEnded=null;        
+var voiceIsLone=false;           
+
+function clearVoiceFade(v){
+  if(voiceFade){clearInterval(voiceFade);voiceFade=null;}
+  v.volume=VOICE_VOLUME;
+}
+function detachVoiceChain(v){
+  if(voiceChainEnded){v.removeEventListener('ended',voiceChainEnded);voiceChainEnded=null;}
+}
+
+function fadeOutVoice(v,ms){
+  if(v.paused)return;
+  if(voiceFade)clearInterval(voiceFade);
+  var from=v.volume, steps=Math.max(1,Math.round(ms/40)), i=0;
+  voiceFade=setInterval(function(){
+    i++;
+    v.volume=Math.max(0,from*(1-i/steps));
+    if(i>=steps){
+      clearInterval(voiceFade);voiceFade=null;
+      v.pause();v.volume=VOICE_VOLUME;
+    }
+  },40);
+}
+function startTake(v,src,mine){
+  if(mine!==voiceToken)return;
+  if(v.getAttribute('data-src')!==src){v.src=v_(src);v.setAttribute('data-src',src);}
+  v.loop=false;
+  clearVoiceFade(v);
+  function go(){
+    if(mine!==voiceToken)return;
+    try{v.currentTime=0;}catch(e){}
+    var p=v.play();
+    if(p&&p.catch)p.catch(function(){});
+  }
+  if(v.readyState<2)v.addEventListener('loadeddata',go,{once:true});
+  else go();
+}
+function playVoiceFor(ctx){
+  if(worldIsSilent())return;
+  var v=document.getElementById('voice-audio');
+  if(!v)return;
+  var src=pickVoiceSrc(ctx);
+  if(!src)return;
+  var mine=++voiceToken;
+  detachVoiceChain(v);
+  voiceIsLone=!!(ctx&&ctx.key&&typeof VOICE_SPECIAL[ctx.key]==='string');
+  startTake(v,src,mine);
+
+  var pool=voicePoolFor(ctx);
+  if(pool&&pool.length>1){
+    var memo=(ctx&&(ctx.key||ctx.speaker))||'voice';
+    voiceChainEnded=function(){
+      if(mine!==voiceToken)return;
+      var next=pickFrom(pool,memo);
+      if(next)startTake(v,next,mine);
+    };
+    v.addEventListener('ended',voiceChainEnded);
+  }
+}
+function playVoice(zoneId){ playVoiceFor({speaker:null,key:null}); }
+function stopVoice(force){
+  var v=document.getElementById('voice-audio');
+  if(!v)return;
+  detachVoiceChain(v);
+  if(force){
+    voiceToken++;
+    clearVoiceFade(v);
+    v.pause();
+    return;
+  }
+  if(voiceIsLone)return;
+  fadeOutVoice(v,VOICE_FADE_MS);
+}
+
+var ZONE_AMBIENT={
+  cabin:  'audio/LOCATIONS/HEART_LOOP.m4a',
+  cliffs: 'audio/LOCATIONS/MOUNTAIN_LOOP.m4a',
+  cave:   'audio/LOCATIONS/CAVE_LOOP.m4a',
+  desert: 'audio/LOCATIONS/DESERT_LOOP.m4a',
+  forest: 'audio/LOCATIONS/FOREST_LOOP.m4a',
+  swamp:  'audio/LOCATIONS/SWAMP_LOOP.m4a',
+  croc:   'audio/LOCATIONS/CROCODILE_LOOP.m4a',
+  cistern:'audio/LOCATIONS/WISHING_WELL_LOOP.m4a'
+};
+var AMBIENT_VOLUME=1;   
+
+function playAmbient(zoneId){
+  var a=document.getElementById('ambient-audio');
+  if(!a)return;
+  var src=zoneId?ZONE_AMBIENT[zoneId]:null;
+  if(!src||hasFlag('effigy_burned')){stopAmbient();return;}
+  if(a.getAttribute('data-src')!==src){
+    a.src=v_(src);a.setAttribute('data-src',src);
+  }
+  a.volume=AMBIENT_VOLUME;
+
+  function go(tries){
+    if(a.getAttribute('data-src')!==src)return;   
+    var p=a.play();
+    if(p&&p.catch)p.catch(function(){});
+    if((tries||0)<10)setTimeout(function(){
+      if(a.getAttribute('data-src')===src&&a.paused)go((tries||0)+1);
+    },250);
+  }
+  go(0);
+}
+function stopAmbient(fadeMs){
+  var a=document.getElementById('ambient-audio');
+  if(!a)return;
+  if(fadeMs&&!a.paused){
+    
+    var from=a.volume, steps=Math.max(1,Math.round(fadeMs/40)), i=0;
+    var iv=setInterval(function(){
+      i++;
+      a.volume=Math.max(0,from*(1-i/steps));
+      if(i>=steps){clearInterval(iv);a.pause();a.volume=AMBIENT_VOLUME;a.removeAttribute('data-src');}
+    },40);
+    return;
+  }
+  a.pause();
+  a.removeAttribute('data-src');   
+}
+
+function playSfx(src,vol,channel){
+  if(worldIsSilent())return;
+  var s=document.getElementById(channel||'sfx-audio');
+  if(!s)return;
+  var fresh=(s.getAttribute('data-src')!==src);
+  if(fresh){s.src=v_(src);s.setAttribute('data-src',src);}
+  s.volume=vol||0.5;
+  function go(){
+    if(s.getAttribute('data-src')!==src)return;
+    try{s.currentTime=0;}catch(e){}
+    var p=s.play();
+    if(p&&p.catch)p.catch(function(){});
+  }
+  if(fresh&&s.readyState<2)s.addEventListener('loadeddata',go,{once:true});
+  else go();
+}
+
+function playGetSfx(src,vol){ playSfx(src,vol,'get-audio'); }
+function stopSfx(){
+  var s=document.getElementById('sfx-audio');
+  if(!s)return;
+  s.pause();
+  s.removeAttribute('data-src');
+}
+
+var UI_CLICKS=seq('UI/CLICK',6);
+
+var UI_ENTER=seq('UI/ENTER_ZONE',2);
+var UI_LEAVE=seq('UI/LEAVE_ZONE',2);
+var SFX_WRONG=seq('ITEMS/GIVE/WRONG_ITEM',2);
+function playUi(src,vol){
+  
+  if(playBuffered(src,vol||0.45))return;
+  var u=document.getElementById('ui-audio');
+  if(!u)return;
+  var fresh=(u.getAttribute('data-src')!==src);
+  if(fresh){u.src=v_(src);u.setAttribute('data-src',src);}
+  u.volume=vol||0.45;
+  function go(){
+    if(u.getAttribute('data-src')!==src)return;   
+    try{u.currentTime=0;}catch(e){}
+    var p=u.play(); if(p&&p.catch)p.catch(function(){});
+  }
+  
+  if(fresh&&u.readyState<2)u.addEventListener('loadeddata',go,{once:true});
+  else go();
+}
+function playClick(){
+  var s=pickFrom(UI_CLICKS,'ui_click');
+  if(s)playUi(s,1);
+}
+
+var sfxRaw={}, sfxBuf={}, sfxDecoding={};
+
+function fetchRaw(src){
+  if(sfxRaw[src]||sfxBuf[src])return;
+  sfxRaw[src]=fetch(v(src))
+    .then(function(r){return r.ok?r.arrayBuffer():null;})
+    .catch(function(){return null;});
+}
+function decodeSound(src){
+  if(sfxBuf[src])return Promise.resolve(sfxBuf[src]);
+  if(sfxDecoding[src])return sfxDecoding[src];
+  var ctx=audioCtx();
+  if(!ctx)return Promise.resolve(null);
+  fetchRaw(src);
+  sfxDecoding[src]=sfxRaw[src].then(function(buf){
+    if(!buf)return null;
+    return new Promise(function(res){
+      
+      var p=ctx.decodeAudioData(buf,res,function(){res(null);});
+      if(p&&p.then)p.then(res,function(){res(null);});
+    });
+  }).then(function(b){
+    if(b){ sfxBuf[src]=b; }
+    else { delete sfxDecoding[src]; delete sfxRaw[src]; }   
+    return b;
+  });
+  return sfxDecoding[src];
+}
+
+function playBuffered(src,vol){
+  var b=sfxBuf[src], ctx=bgCtx;
+  if(!b||!ctx)return false;
+  function fire(){
+    var s=ctx.createBufferSource(), g=ctx.createGain();
+    s.buffer=b;
+    g.gain.value=vol;
+    s.connect(g);
+    g.connect(ctx.destination);
+    s.start(0);
+  }
+  
+  if(ctx.state==='suspended'){
+    var r=ctx.resume();
+    if(r&&r.then)r.then(fire,fire); else fire();
+  }else fire();
+  return true;
+}
+
+var UI_SOUNDS=UI_CLICKS.concat(UI_ENTER,UI_LEAVE);
+UI_SOUNDS.forEach(fetchRaw);
+
+(function(){
+  var u=document.getElementById('ui-audio');
+  if(!u||!UI_CLICKS.length)return;
+  u.src=v_(UI_CLICKS[0]); u.setAttribute('data-src',UI_CLICKS[0]);
+  u.preload='auto';
+  try{u.load();}catch(e){}
+})();
+
+UI_SOUNDS.forEach(decodeSound);
+
+document.addEventListener('pointerdown',function(){
+  if(audioCtx())UI_SOUNDS.forEach(decodeSound);
+},{once:true,capture:true});
+
+function unlockCtx(){
+  var c=audioCtx();
+  if(c&&c.state==='suspended')c.resume();
+}
+document.addEventListener('pointerdown',unlockCtx,true);
+document.addEventListener('touchstart',unlockCtx,true);
+
+var LAYER_SOUND_VOLUME=1;   
+var duckHold=null, duckRamp=null;
+
+function soundLayers(){
+  if(!el.zoneScene)return [];
+  
+  return [].slice.call(el.zoneScene.querySelectorAll('.scene-layer[data-sound]'))
+    .filter(plateShown);
+}
+function crocIsVoicing(){
+  var vEl=document.getElementById('voice-audio');
+  return !!(vEl&&!vEl.paused&&/\/CROC\//.test(vEl.getAttribute('data-src')||''));
+}
+function rampLayerSound(to,ms){
+  clearInterval(duckRamp);
+  var ns=soundLayers();
+  if(!ns.length)return;
+  var from=ns[0].volume, steps=Math.max(1,Math.round(ms/40)), i=0;
+  duckRamp=setInterval(function(){
+    i++;
+    var v=from+(to-from)*(i/steps);
+    ns.forEach(function(n){ try{ n.volume=Math.max(0,Math.min(1,v)); }catch(e){} });
+    if(i>=steps)clearInterval(duckRamp);
+  },40);
+}
+function initLayerSound(){
+  if(worldIsSilent())return;
+  soundLayers().forEach(function(n){
+    
+    if(!plateShown(n))return;
+    function unmute(){
+      if(n.__released)return;
+      n.volume=crocIsVoicing()?0:LAYER_SOUND_VOLUME;
+      n.muted=false;
+      var p=n.play();
+      if(p&&p.catch)p.catch(function(){ n.muted=true; });
+    }
+    if(n.readyState>=2)unmute();
+    else n.addEventListener('loadeddata',unmute,{once:true});
+  });
+}
+
+(function(){
+  var vEl=document.getElementById('voice-audio');
+  if(!vEl)return;
+  vEl.addEventListener('playing',function(){
+    if(!soundLayers().length||!crocIsVoicing())return;
+    clearTimeout(duckHold);
+    rampLayerSound(0,200);
+  });
+  function voiceStopped(){
+    if(!soundLayers().length)return;
+    clearTimeout(duckHold);
+    duckHold=setTimeout(function(){
+      if(soundLayers().length&&!crocIsVoicing())rampLayerSound(LAYER_SOUND_VOLUME,1200);
+    },350);
+  }
+  vEl.addEventListener('pause',voiceStopped);
+  vEl.addEventListener('ended',voiceStopped);
+})();
+
+var CHOP_SRC='audio/LOCATIONS/FOREST_CHOPS.m4a';
+var chopTimer=null;
+function scheduleChop(first){
+  clearTimeout(chopTimer);
+  if(worldIsSilent()){chopTimer=null;return;}
+  chopTimer=setTimeout(function(){
+    var c=document.getElementById('chop-audio');
+    if(c){
+      if(c.getAttribute('data-src')!==CHOP_SRC){c.src=v_(CHOP_SRC);c.setAttribute('data-src',CHOP_SRC);}
+      c.currentTime=0;
+      c.volume=1;
+      c.play().catch(function(){});
+    }
+    scheduleChop(false);
+  }, first ? 900 : 5000+Math.random()*2000);
+}
+function startChops(){ if(!chopTimer)scheduleChop(true); }
+function stopChops(){
+  clearTimeout(chopTimer);
+  chopTimer=null;
+  var c=document.getElementById('chop-audio');
+  if(c)c.pause();
+}
+
+var ZONE_RETURN_LABEL='return';
+
+function pendingOffer(){
+  
+  if(hasFlag('effigy_burned'))return null;
+  var cfg=ZONE_ITEM_USE[state.zone];
+  if(!cfg||!cfg.accepts)return null;
+  for(var i=0;i<cfg.accepts.length;i++){
+    var it=cfg.accepts[i];
+    
+    if(hasItem(it)&&(!cfg.wants||cfg.wants(it)))return {item:it,cfg:cfg};
+  }
+  return null;
+}
+
+function awaitingAnswer(){
+  return !!(el.choices&&el.choices.classList.contains('active'));
+}
+
+function showZoneOffer(){
+  if(!el.leaveNote)return null;
+  var offer=pendingOffer();
+  
+  if(offer&&!awaitingAnswer()){
+    el.leaveNote.textContent=offer.cfg.offer
+      ? offer.cfg.offer(offer.item)
+      : 'give the '+itemLabel(offer.item);
+    el.leaveNote.classList.add('offer','show');
+  }else{
+    el.leaveNote.classList.remove('show','offer');
+  }
+  return offer;
+}
+function markZoneExhausted(){
+  var offer=showZoneOffer();
+  
+  var inv=document.getElementById('inventory');
+  var reachable=offer&&!(inv&&inv.classList.contains('hidden'));
+  if(reachable)return;
+  el.zReturn.classList.add('show');
+}
+function resetZoneLeave(){
+  el.zReturn.textContent=ZONE_RETURN_LABEL;
+  el.zReturn.classList.remove('show');
+  if(el.leaveNote)el.leaveNote.classList.remove('show','offer');
+}
+
+function openZone(id,retry){
+  if(retry){
+    if(state.phase!=='zone')return;
+    cancelAdvance();
+    abortType();
+    cancelIntro();
+    sceneGen++;
+    stopVoice(true);
+    stopSfx();
+    stopChops();
+    releaseSceneMedia();
+  }else if(state.phase!=='exploring')return;
+  state.phase='transitioning';
+  var ch=characters[id];
+  if(!ch)return;
+  
+  if(!retry)playUi(pickFrom(UI_ENTER,'ui_enter'),1);
+  
+  var firstVisit=!hasVisited(id);
+  
+  if(id==='cabin')prepFinaleVideo();
+  document.body.style.overflow='auto';document.documentElement.style.overflow='auto';
+  transitionTo('zone',function(){
+    el.mapScreen.style.display='none';document.body.classList.remove('on-map');el.zoneScreen.classList.add('active');el.zoneScreen.classList.remove('entered');
+    el.vignette.classList.add('hidden');
+    buildScene(id);
+    
+    revealPending();
+    clearCrocView();
+    updateMusicFor(id);
+    playAmbient(id);
+    
+    stopVoice(true);
+    stopSfx();
+    stopChops();
+    el.dialogueHistory.innerHTML='';
+    el.charText.innerHTML='';
+    el.charName.textContent='';
+    el.choices.innerHTML='';
+    el.choices.classList.remove('active');
+    el.choices.innerHTML='';   
+    resetZoneLeave();
+    var si=document.getElementById('scene-intro');
+    if(si){si.classList.remove('vis');si.querySelector('.si-note').textContent='';}
+    
+    document.getElementById('dialogue-wrap').classList.add('dim');
+    setInputRow(false);
+    el.userInput.value='';
+    el.userInput.disabled=false;
+    setInputMode('speak...');
+    if(!conversations[id])conversations[id]=[];
+  },function(){
+    requestAnimationFrame(function(){
+      el.zoneScreen.classList.add('entered');
+
+      el.charName.textContent='';
+
+      var node=null,introNote='';
+      if(ch.scripted&&ch.dynamic){
+        var stateKey=ch.getState();
+        node=ch.states[stateKey];
+        
+        introNote=node.environmentNote||'';
+        
+        if(id==='forest'&&stateKey==='butcher_chopping'){
+          startChops();
+        }
+      }else if(ch.scripted&&!gameState.choices[id]&&ch.tree){
+        node=ch.tree.start;
+        introNote=node.environmentNote||'';
+      }else if(ch.isCroc){
+        el.charName.textContent='';
+        introNote=hasFlag('got_feather')
+          ? (ch.environmentNoteDone||ch.environmentNote)
+          : ch.environmentNote;
+      }else if(ch.isWell){
+        introNote=ch.environmentNote||'';
+      }
+
+      showIntro(firstVisit?introNote:'').then(function(){
+      if(ch.scripted){
+        if(ch.dynamic){
+          
+          if(node.action === 'set_flag' && node.flag) setFlag(node.flag);
+          if(node.action === 'm_intro'){
+            mIntroSequence();
+          }else if(node.action === 'butcher_sees_axe'){
+            butcherSeesAxe();
+          }else if(node.action === 'shadow_return'){
+            shadowReturnSequence();
+          }else if(node.action === 'butcher_angry'){
+            butcherAngrySequence();
+          }else if(node.action === 'place_effigy'){
+            placeEffigySequence();
+          }else if(node.action === 'cave_shut'){
+            blockedEntry(node.blockedText);
+          }else{
+            runStateNode(ch,node,id);
+          }
+        }else if(gameState.choices[id]){
+          
+          el.charName.textContent='';
+          var emptyNote = ch.completedText || 'There is no one here.';
+          line('',emptyNote).then(function(){
+            markZoneExhausted();
+          });
+        }else{
+          line(node.narration?'':ch.name,node.text).then(function(){
+            showChoices(id,node.choices);
+            showZoneOffer();
+          });
+        }
+      }else if(ch.isCroc){
+        el.charName.textContent='';
+        if(hasFlag('effigy_burned')){
+          line('','Black water, and nothing under it. The crocodile is gone.').then(function(){
+            waitForAdvance().then(function(){markZoneExhausted()});
+          });
+        }else if(hasFlag('gave_crows_feather')){
+          
+          lungeScene();
+          thrownOut('It is awake, and it has been waiting for you. It comes at you faster than anything that size should move.','Croc_Dark');
+        }else if(hasFlag('got_feather')){
+          line('','The crocodile sleeps. Its mouth is closed now. The water is still.').then(function(){
+            waitForAdvance().then(function(){markZoneExhausted()});
+          });
+        }else if(hasFlag('croc_solved')){
+          
+          line('','The jaw hangs slack. The feather is still there, loose between its teeth.');
+        }else{
+          showCrocRound();
+        }
+      }else if(ch.isWell&&hasFlag('effigy_burned')){
+        el.charName.textContent='';
+        line('','The ring of stone is dry. Whatever answered here does not any more.').then(function(){
+          waitForAdvance().then(function(){markZoneExhausted()});
+        });
+      }else if(ch.isWell){
+        el.zReturn.classList.add('show');
+        
+        var wellScene=currentSceneId;
+        
+        say('','You feel something down there listening.').then(function(){
+          if(currentSceneId!==wellScene)return;
+          setInputRow(true);
+          setInputMode('make a wish...');
+          speakerIs(ch.name);
+          return typewrite(el.charText,ch.opening,35);
+        }).then(function(){
+          if(currentSceneId!==wellScene)return;
+          el.userInput.focus();
+        });
+      }else{
+        setInputRow(true);
+        el.zReturn.classList.add('show');
+        
+        speakerIs(ch.name);
+        typewrite(el.charText,ch.opening,35).then(function(){
+          el.userInput.focus();
+        });
+      }
+      });
+    });
+    state.phase='zone';state.zone=id;
+    markVisited(id);
+  
+  },function(){return waitForSceneReady(18000)});
+}
+
+var introCancel=null;
+function cancelIntro(){ if(introCancel)introCancel(); introCancel=null; }
+function showIntro(text){
+  var box=document.getElementById('scene-intro');
+  var wrap=document.getElementById('dialogue-wrap');
+  var gen=sceneGen;
+  return new Promise(function(resolve){
+    function reveal(){ if(wrap)wrap.classList.remove('dim'); }
+    if(!text||!box){reveal();return resolve();}
+    var go=box.querySelector('.si-go');
+    if(go)go.classList.remove('show');
+    box.querySelector('.si-note').textContent=text;
+    setTimeout(function(){box.classList.add('vis')},20);
+
+    var armed=false, done=false;
+    setTimeout(function(){armed=true},700);        
+    
+    var cueTimer=setTimeout(function(){if(!done&&go)go.classList.add('show')},6000);
+    function teardown(){
+      clearTimeout(cueTimer);
+      if(go)go.classList.remove('show');
+      document.removeEventListener('click',dismiss,true);
+      document.removeEventListener('keydown',onKey,true);
+    }
+    introCancel=function(){ done=true; teardown(); box.classList.remove('vis'); };
+    function dismiss(){
+      if(!armed||done)return;
+      done=true;
+      teardown();
+      introCancel=null;
+      box.classList.remove('vis');
+      setTimeout(function(){
+        box.querySelector('.si-note').textContent='';
+        reveal();                                   
+        setTimeout(function(){ if(gen===sceneGen)resolve(); },350);
+      },700);
+    }
+    function onKey(e){ if(e.key==='Enter'||e.key===' ')dismiss(); }
+    document.addEventListener('click',dismiss,true);
+    document.addEventListener('keydown',onKey,true);
+  });
+}
+
+async function runStateNode(ch,node,id){
+  var speaker=node.narration?'':ch.name;
+  var raw=node.lines||node.text;
+  var arr=(typeof raw==='function')?raw():raw;
+  if(!Array.isArray(arr))arr=[arr];
+  
+  if(node.feel&&node.feelFirst) await say('',node.feel);
+  for(var i=0;i<arr.length-1;i++) await say(speaker,arr[i]);
+  
+  await line(speaker,arr[arr.length-1]);
+  if(node.feel&&!node.feelFirst){
+    await waitForAdvance();
+    await line('',node.feel);
+  }
+  
+  if(node.choices){
+    showChoices(id,node.choices);
+    showZoneOffer();
+  }else{
+    showZoneOffer();
+    waitForAdvance().then(function(){markZoneExhausted()});
+  }
+}
+
+function blockedEntry(text){
+  var b=document.getElementById('scene-blackout');
+  if(b){b.classList.add('instant');b.classList.add('going');}
+  document.body.classList.add('scene-dark');
+  var box=document.getElementById('scene-intro');
+  var wrap=document.getElementById('dialogue-wrap');
+  if(wrap)wrap.classList.add('dim');
+  if(!box){closeZone();return;}
+  var go=box.querySelector('.si-go');
+  box.querySelector('.si-note').textContent=text||"…i don't think now is a good time.";
+  setTimeout(function(){box.classList.add('vis')},20);
+  var armed=false,done=false;
+  setTimeout(function(){armed=true},700);
+  var cue=setTimeout(function(){if(!done&&go)go.classList.add('show')},4000);
+  function dismiss(){
+    if(!armed||done)return;
+    done=true;
+    clearTimeout(cue);
+    if(go)go.classList.remove('show');
+    document.removeEventListener('click',dismiss,true);
+    document.removeEventListener('keydown',onKey,true);
+    box.classList.remove('vis');
+    setTimeout(function(){
+      box.querySelector('.si-note').textContent='';
+      closeZone();
+    },700);
+  }
+  function onKey(e){ if(e.key==='Enter'||e.key===' ')dismiss(); }
+  document.addEventListener('click',dismiss,true);
+  document.addEventListener('keydown',onKey,true);
+}
+
+function showChoices(zoneId,choices){
+  el.choices.innerHTML='';
+  choices.forEach(function(c){
+    var btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.textContent=c.label;
+    btn.addEventListener('click',function(){handleChoice(zoneId,c)});
+    el.choices.appendChild(btn);
+  });
+  el.choices.classList.add('active');
+}
+
+function handleChoice(zoneId,choice){
+  var ch=characters[zoneId];
+  el.choices.classList.remove('active');
+  el.choices.innerHTML='';   
+  
+  var currentText=el.charText.textContent;
+  if(currentText&&currentText.trim())addMessage('npc',el.charName.textContent,currentText);
+
+  var node;
+  if(ch.dynamic){
+    node = ch.states[choice.next];
+  }else{
+    node = ch.tree[choice.next];
+    saveChoice(zoneId,choice.next);
+    
+    if(choice.next==='yes_response'&&ch.tree['yes_response_alt']&&Math.random()>0.5){
+      node=ch.tree['yes_response_alt'];
+    }
+  }
+
+  if(!node) return;
+
+  line(node.narration?'':ch.name,node.text).then(function(){
+    
+    if(node.action === 'set_flag' && node.flag){
+      setFlag(node.flag);
+    }
+    if(node.action === 'add_item' && node.item){
+      addItem(node.item);
+      if(node.flag) setFlag(node.flag);
+    }
+    
+    if(node.action === 'trade_axe_for_thread'){
+      removeItem('axe');
+      addItem('thread');
+      setFlag('butcher_gave_thread');
+      setTimeout(function(){markZoneExhausted()},2500);
+      return;
+    }
+
+    if(node.action === 'leave'){
+      setTimeout(function(){
+        addMessage('npc',ch.name,node.text);
+        
+        fadeSceneLayer('DESERT_SHADOW');
+        line('','The shadow turns without another word and the dust swallows him.').then(function(){
+          waitForAdvance().then(function(){markZoneExhausted()});
+        });
+      },2000);
+    }else if(node.choices){
+      showChoices(zoneId,node.choices);
+      showZoneOffer();
+    }else{
+      waitForAdvance().then(function(){markZoneExhausted()});
+    }
+  });
+}
+
+function speakerIs(name){
+  el.charName.textContent=name||'';
+  el.charText.classList.toggle('action',!name);
+}
+
+function isBracketed(s){return /^\s*\[[\s\S]*\]\s*$/.test(s||'');}
+function bracket(s){return isBracketed(s)?s:'['+s+']';}
+
+function line(speaker,text,speed,voiceKey){
+  currentVoice={speaker:speaker||null,key:voiceKey||null};
+  voiceArmed=true;
+  var narration=!speaker;
+  el.charName.textContent=speaker||'';
+  el.charText.classList.toggle('action',narration);
+  return typewrite(el.charText,narration?bracket(text):text,speed||35);
+}
+
+var activeType=null;     
+
+var sceneGen=0;
+
+function sceneDelay(ms){
+  var gen=sceneGen;
+  return new Promise(function(r){ setTimeout(function(){ if(gen===sceneGen)r(); },ms); });
+}
+function abortType(){
+  if(activeType&&activeType.abort)activeType.abort();
+  activeType=null;
+}
+function typewrite(element,text,speed){
+  var gen=sceneGen;
+  return new Promise(function(resolve){
+    element.innerHTML='';
+    var i=0;
+    var cursor=document.createElement('span');
+    cursor.className='cursor';
+    element.appendChild(cursor);
+    
+    if(!voiceArmed)currentVoice={speaker:el.charName.textContent||null,key:null};
+    voiceArmed=false;
+    playVoiceFor(currentVoice);
+    var interval=null;
+    var me={};
+    function done(){
+      if(interval){clearInterval(interval);interval=null;}
+      if(activeType===me)activeType=null;
+      releasePrefetch();                 
+      if(gen!==sceneGen)return;   
+      stopVoice();
+      
+      enableGrabbables();
+      resolve();
+    }
+    
+    me.abort=function(){
+      if(interval){clearInterval(interval);interval=null;}
+      if(activeType===me)activeType=null;
+      releasePrefetch();
+    };
+    
+    me.finish=function(){
+      if(interval===null)return;
+      if(cursor.parentNode===element){
+        while(i<text.length){element.insertBefore(document.createTextNode(text[i]),cursor);i++;}
+        cursor.remove();
+      }
+      done();
+    };
+    activeType=me;
+    
+    holdPrefetch();
+    interval=setInterval(function(){
+      
+      if(cursor.parentNode!==element){done();return;}
+      if(i<text.length){
+        element.insertBefore(document.createTextNode(text[i]),cursor);
+        i++;
+      }else{
+        cursor.remove();
+        done();
+      }
+    },speed||35);
+  });
+}
+
+var advanceResolver=null;
+function waitForAdvance(){
+  return new Promise(function(resolve){
+    if(el.advanceHint)el.advanceHint.classList.add('show');
+    advanceResolver=function(){
+      if(el.advanceHint)el.advanceHint.classList.remove('show');
+      advanceResolver=null;
+      resolve();
+    };
+  });
+}
+function cancelAdvance(){
+  if(el.advanceHint)el.advanceHint.classList.remove('show');
+  advanceResolver=null;
+}
+
+function playerAdvance(){
+  if(activeType){activeType.finish();return;}
+  if(advanceResolver)advanceResolver();
+}
+
+var usingItem=false;
+async function useItemHere(item){
+  if(usingItem||state.phase!=='zone')return;
+  
+  if(awaitingAnswer())return;
+  
+  if(hasFlag('effigy_burned'))return;
+  var zone=state.zone, cfg=ZONE_ITEM_USE[zone]||{};
+  
+  var accepted=(cfg.accepts||[]).indexOf(item)!==-1
+               &&(!cfg.wants||cfg.wants(item));
+  usingItem=true;
+  cancelAdvance();
+  try{
+    if(!accepted){
+      
+      playSfx(pickFrom(SFX_WRONG,'wrong_item'),1);
+      await line(cfg.speaker||'',cfg.refuse||'Nothing happens.');
+      usingItem=false;
+      waitForAdvance().then(function(){markZoneExhausted()});
+      return;
+    }
+    
+    if(el.leaveNote)el.leaveNote.classList.remove('show','offer');
+    el.zReturn.classList.remove('show');
+    
+    var seq=null;
+    if(zone==='cave'){ seq=runGiveAxe(); }
+    else if(zone==='swamp'){ seq=runGiveThread(); }
+    else if(zone==='desert'){ seq=runGiveWater(); }
+    else if(zone==='cliffs'){ seq=runGiveToM(item); }
+    else if(zone==='cabin'){ seq=runLightEffigy(); }
+    usingItem=false;
+    if(seq)await seq;
+  }finally{ usingItem=false; }
+}
+
+function slotClicked(slot){
+  var item=slot.dataset.item;
+  if(!item)return;
+  playClick();
+  var cfg=ZONE_ITEM_USE[state.zone]||{};
+  var inZone=(state.phase==='zone');
+  
+  var canOffer=inZone&&!usingItem&&!awaitingAnswer();
+  var label='';
+  
+  var wanted=(cfg.accepts||[]).indexOf(item)!==-1&&(!cfg.wants||cfg.wants(item));
+  if(canOffer) label=wanted?'give':'use';
+  openItemModal(item,{useLabel:label,closeLabel:'close'}).then(function(used){
+    if(used)useItemHere(item);
+  });
+}
+
+function flushLine(){
+  if(el.charText.dataset.noflush){delete el.charText.dataset.noflush;return;}
+  var t=el.charText.textContent;
+  if(t&&t.trim()){
+    addMessage('npc',el.charText.classList.contains('action')?'':el.charName.textContent,t);
+  }
+}
+
+async function say(speaker,text,speed,voiceKey){
+  flushLine();
+  await line(speaker,text,speed,voiceKey);
+  await waitForAdvance();
+}
+
+async function beat(ms,speaker){
+  flushLine();
+  el.charName.textContent=speaker||'';
+  el.charText.classList.remove('action');
+  el.charText.innerHTML='';
+  await sceneDelay(ms||900);
+}
+
+async function shadowReturnSequence(){
+  await say('Shadow','khh... khh...  hhkk...',null,'Shadow_Thirsty');
+  await say('','A dry rattle, deep in him. The dust has got in.');
+  await say('Shadow',"...the river is still dark. khh... and I am so thirsty.",null,'Shadow_Thirsty');
+  markZoneExhausted();
+}
+
+async function placeEffigySequence(){
+  await say('','You set the effigy in front of the grave. It feels warm. Almost alive.');
+  flushLine();
+  el.charName.textContent='';
+  el.charText.classList.remove('action');
+  el.charText.innerHTML='';
+  markZoneExhausted();
+}
+
+async function butcherAngrySequence(){
+  
+  setFlag('butcher_hostile');
+  await say('','The Butcher is pacing. His head hangs slack against his shoulder, further with every turn, and he does not seem to notice.');
+  await say('Butcher',"you again? ive been waiting. you stole my thread didn't you",null,'Butcher_Angry');
+  await askChoice([
+    {label:"I don't know what you mean"},
+    {label:'You were not using it'},
+    {label:'Say nothing'}
+  ]);
+  await say('Butcher',"I can smell it from here. you'll get what's coming to you…",null,'Butcher_Angry');
+  
+  lungeScene();
+  await thrownOut('The Butcher reaches for his axe. You run out the door without looking back.','Butcher_Angry');
+}
+
+async function butcherSeesAxe(){
+  if(!hasFlag('met_butcher')){
+    setFlag('met_butcher');
+    await say('','You feel his gaze passing through you.');
+    await say('Butcher','...what do you want? what do you WANT...');
+    await say('Butcher','Is that.. my axe? Did you take him from me?? Where is he?');
+  }else{
+    await say('Butcher','Is that.. my axe? Did you take him from me?? Where is he?');
+  }
+  markZoneExhausted();
+}
+
+async function mIntroSequence(){
+  setFlag('met_m');
+  
+  await say('','You feel lost, completely out of place.');
+  await beat(1200,'M');
+  await say('M','Is it you? tsk… nkkk.',null,'M_Intro');
+  await say('','She does not look up. Her hands keep moving over the bench.');
+  await say('M','well then… nkk…tsk… there are things we need');
+  await say('M','…shhh the snail makes the broth nkkk…');
+  await say('M','…srssh the crow drops what it carries. Mmmnah…');
+  await say('M','..tssssk the stone that hangs from the neck…');
+  await say('M','..bring them…bring them…');
+  markZoneExhausted();
+}
+
+function addMessage(who,name,text){
+  var msg=document.createElement('div');
+  
+  var isAction=(who==='npc'&&!name);
+  msg.className='msg '+who+(isAction?' action':'');
+  if(who==='npc'&&name){
+    var sp=document.createElement('span');
+    sp.className='speaker';
+    sp.textContent=name;
+    msg.appendChild(sp);
+  }
+  var t=document.createElement('span');
+  t.textContent=isAction?bracket(text):text;
+  msg.appendChild(t);
+  el.dialogueHistory.appendChild(msg);
+  el.dialogueHistory.scrollTop=el.dialogueHistory.scrollHeight;
+}
+
+var itemModal={el:null,onClose:null};
+function itemLabel(item){
+  return (ITEM_LABELS[item]||item.replace(/_/g,' ')).replace(/\n/g,' ');
+}
+
+var ITEM_DESCRIPTIONS={
+  match:"One match. Small, but it'll be enough when it matters.",
+  water:'A cracked pail brimming with strange water',
+  diamond_necklace:'A diamond stone caged, staring back like a lidless eye',
+  axe:'The blade is dull. It is quite heavy.',
+  thread:'A spool wound tight begging to be used.',
+  snail_stew:'Warm green liquid, snails still twitching in the broth',
+  crows_feather:'dark feather, flesh still hanging from its origin',
+  effigy:'Wire, bone and fabric stitched into something almost like a small person'
+};
+
+var forceShutItemModal=null;
+function openItemModal(item,opts){
+  opts=opts||{};
+  var m=document.getElementById('item-modal');
+  if(!m)return Promise.resolve();
+  var art=m.querySelector('.im-art'),name=m.querySelector('.im-name');
+  var desc=m.querySelector('.im-desc');
+  var useBtn=m.querySelector('.im-use'),closeBtn=m.querySelector('.im-close');
+  art.src=ITEM_ICONS[item]?v(ITEM_ICONS[item]):'';
+  art.style.display=ITEM_ICONS[item]?'':'none';
+  name.textContent=itemLabel(item);
+  desc.textContent=ITEM_DESCRIPTIONS[item]||'';
+  closeBtn.textContent=opts.closeLabel||'continue';
+  m.classList.toggle('no-buttons',!!opts.noButtons);
+  if(opts.useLabel){
+    useBtn.textContent=opts.useLabel;
+    useBtn.classList.add('show');
+  }else{
+    useBtn.classList.remove('show');
+  }
+  m.classList.add('open');
+  setTimeout(function(){m.classList.add('vis')},20);
+  
+  var armed=false;
+  setTimeout(function(){armed=true},260);
+  return new Promise(function(resolve){
+    function shut(used){
+      m.classList.remove('vis');
+      setTimeout(function(){m.classList.remove('open')},320);
+      useBtn.onclick=null;closeBtn.onclick=null;m.onclick=null;
+      forceShutItemModal=null;
+      resolve(!!used);
+    }
+    
+    forceShutItemModal=function(){ shut(false); };
+    useBtn.onclick=function(e){e.stopPropagation();playClick();shut(true)};
+    closeBtn.onclick=function(e){e.stopPropagation();playClick();shut(false)};
+    
+    m.onclick=function(){ if(armed)shut(false); };
+  });
+}
+
+var ZONE_ITEM_USE={
+  cave:{
+    accepts:['axe'],
+    speaker:'Butcher',
+    offer:function(item){return 'give the '+itemLabel(item)+' to the butcher';},
+    refuse:"That's no use to me. I lost my axe. That's what I want back."
+  },
+  swamp:{
+    accepts:['thread'],
+    speaker:'Jester',
+    offer:function(item){return 'give the '+itemLabel(item)+' to the jester';},
+    refuse:"Charming! Useless, but charming. It's thread I'm after. Thread!"
+  },
+  desert:{
+    accepts:['water'],
+    speaker:'Shadow',
+    offer:function(item){return 'give the '+itemLabel(item)+' to the shadow';},
+    refuse:"I can't drink that. The river is dark and I am so thirsty."
+  },
+  cliffs:{
+    accepts:['snail_stew','crows_feather','diamond_necklace'],
+    speaker:'M',
+    offer:function(item){return 'give the '+itemLabel(item)+' to m';},
+    refuse:"Tkk... no. No. The snail. The crow. The stone that hangs from the neck. Bring THEM."
+  },
+  cabin:{
+    
+    accepts:['match'],
+    wants:function(item){return item==='match'&&hasItem('effigy');},
+    speaker:'',
+    offer:function(){return 'light the effigy with the match';},
+    refuse:"The stone does not stir. Something here needs to burn."
+  },
+  cistern:{speaker:'The Wishing Well',refuse:"Keep it. I asked for nothing."},
+  croc:{speaker:'',refuse:"The crocodile does not stir."},
+  forest:{speaker:'',refuse:"The grove has no use for it."}
+};
+
+async function announceItem(giver,item){
+  if(giver)showGift(giver,item);
+  el.charText.dataset.noflush='1';
+  if(ITEM_GET_SFX[item])playGetSfx(ITEM_GET_SFX[item],1);
+  await openItemModal(item,{noButtons:true});
+  
+  revealPending();
+}
+
+function giftInto(host,giver,item){
+  var label=itemLabel(item);
+  host.appendChild(document.createTextNode('['));
+  var g=document.createElement('strong');
+  g.className='giver';
+  g.textContent=giver;
+  host.appendChild(g);
+  host.appendChild(document.createTextNode(' gave you '));
+  var it=document.createElement('strong');
+  it.className='given-item';
+  it.textContent=label;
+  host.appendChild(it);
+  host.appendChild(document.createTextNode(']'));
+}
+
+function showGift(giver,item){
+  el.charName.textContent='';
+  el.charText.classList.add('action');
+  el.charText.innerHTML='';
+  giftInto(el.charText,giver,item);
+
+  var msg=document.createElement('div');
+  msg.className='msg npc action';
+  giftInto(msg,giver,item);
+  el.dialogueHistory.appendChild(msg);
+  el.dialogueHistory.scrollTop=el.dialogueHistory.scrollHeight;
+}
+
+async function sendToCharacter(zoneId,userText){
+  var ch=characters[zoneId];
+  if(!ch||typing)return;
+  typing=true;
+  el.userInput.disabled=true;
+  addMessage('user','',userText);
+  el.charText.innerHTML='<span class="cursor"></span>';
+  
+  setTimeout(function(){
+    el.charText.textContent='...the air shifts. No response comes.';
+    typing=false;
+    el.userInput.disabled=false;
+    el.userInput.focus();
+  },1500);
+}
+
+function setInputRow(show){
+  el.inputRow.style.display=show?'flex':'none';
+  var wrap=document.getElementById('dialogue-wrap');
+  if(wrap)wrap.classList.toggle('has-input',!!show);
+}
+
+function setInputMode(placeholder){
+  el.userInput.placeholder=placeholder;
+}
+
+(function(){
+  var input=document.getElementById('user-input');
+  var btn=document.getElementById('wish-send');
+  if(!input||!btn||!window.MutationObserver)return;
+  new MutationObserver(function(){btn.disabled=input.disabled;})
+    .observe(input,{attributes:true,attributeFilter:['disabled']});
+})();
+
+function submitPlayerInput(){
+  var inp=document.getElementById('user-input');
+  if(!inp.value.trim()||typing)return;
+  var text=inp.value.trim();
+  inp.value='';
+
+  var ch=characters[state.zone];
+  if(ch&&ch.isWell){
+    addMessage('user','',text);
+    
+    var wellScene=currentSceneId;
+    function wellLater(fn,ms){
+      setTimeout(function(){ if(currentSceneId!==wellScene)return; fn(); },ms);
+    }
+    function wellStill(fn){
+      return function(){ if(currentSceneId!==wellScene)return; return fn(); };
+    }
+    
+    speakerIs(ch.name);
+    el.charText.textContent='...';
+    el.userInput.disabled=true;
+
+    var t=text.toLowerCase();
+    var waterRequest=asksForWater(t);
+    var isThanks=/\b(thank you|thanks|thankyou|ty|thx)\b/.test(t);
+    var isBrakence=/brakence/.test(t);
+    var isHypochondriac=/hypochondriac/.test(t);
+
+    if(isBrakence){
+      wellLater(function(){
+        typing=true;
+        var reply=Math.random()<0.5
+          ? "We don't talk about him."
+          : "I haven't heard that name in years.";
+        armVoice('The Wishing Well','Well_Laugh');
+        typewrite(el.charText,reply,35).then(wellStill(function(){
+          typing=false;
+          el.userInput.disabled=false;
+          el.userInput.focus();
+        }));
+      },1800);
+    }else if(isHypochondriac){
+      
+      wellLater(function(){
+        typing=true;
+        var reply=Math.random()<0.5
+          ? "That's not really what you want."
+          : "You don't want that anymore.";
+        armVoice('The Wishing Well','Well_Laugh');
+        typewrite(el.charText,reply,35).then(wellStill(function(){
+          typing=false;
+          el.userInput.disabled=false;
+          el.userInput.focus();
+        }));
+      },1800);
+    }else if(isThanks){
+      wellLater(function(){
+        typing=true;
+        typewrite(el.charText,'I do what I must.',35).then(wellStill(function(){
+          typing=false;
+          el.userInput.disabled=false;
+          el.userInput.focus();
+        }));
+      },1800);
+    }else if(waterRequest&&!hasFlag('got_water')){
+      wellLater(function(){
+        typing=true;
+        typewrite(el.charText,'...take it then.',35).then(wellStill(function(){
+          
+          fadeSceneLayer('WISHING WELL_BUCKET');
+          wellLater(function(){
+            addItem('water');
+            setFlag('got_water');
+            refreshScene();
+            addMessage('npc','The Wishing Well','...take it then.');
+            
+            announceItem('The Wishing Well','water').then(wellStill(function(){
+              typing=false;
+              el.userInput.disabled=false;
+              el.userInput.focus();
+            }));
+          },1500);
+        }));
+      },1800);
+    }else{
+      var pool=ch.responses;
+      var idx=ch.responseIndex||0;
+      ch.responseIndex=(idx+1)%pool.length;
+      
+      var lead=hasFlag('got_water')?"haven't you asked for enough? ":"you'll find it. ";
+      wellLater(function(){
+        typing=true;
+        typewrite(el.charText,lead+pool[idx],35).then(wellStill(function(){
+          typing=false;
+          el.userInput.disabled=false;
+          el.userInput.focus();
+        }));
+      },1800);
+    }
+  }else{
+    sendToCharacter(state.zone,text);
+  }
+}
+document.getElementById('input-row').addEventListener('submit',function(e){
+  e.preventDefault();
+  submitPlayerInput();
+});
+document.getElementById('user-input').addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  e.preventDefault();
+  submitPlayerInput();
+});
+
+function releaseSceneMedia(){
+  if(!el.zoneScene)return;
+  [].forEach.call(el.zoneScene.querySelectorAll('video'),function(v){
+    v.__released=1;
+    v.muted=true;
+    try{ v.pause(); }catch(e){}
+  });
+}
+function closeZone(){
+  
+  if(document.body.classList.contains('finale'))return;
+  if(state.phase!=='zone')return;state.phase='transitioning';el.zReturn.classList.remove('show');
+  
+  if(forceShutItemModal)forceShutItemModal();
+  
+  cancelAdvance();
+  abortType();
+  cancelIntro();
+  sceneGen++;
+  stopVoice(true);
+  stopSfx();
+  stopChops();
+  releaseSceneMedia();
+  clearSceneFailure();
+  playUi(pickFrom(UI_LEAVE,'ui_leave'),1);
+  document.body.style.overflow='hidden';document.documentElement.style.overflow='hidden';
+  transitionTo('map',function(){
+    el.zoneScreen.classList.remove('active','entered');el.zoneScene.innerHTML='';currentSceneId=null;
+    
+    clearCrocView();
+    document.getElementById('dialogue-wrap').classList.remove('dim');
+    revealPending();renderInventory();el.mapScreen.style.display='';document.body.classList.add('on-map');el.vignette.classList.remove('hidden');
+  },function(){state.phase='exploring';state.zone=null;updateMusicFor(null);stopAmbient();applyWorldTransform()});
+}
+
+document.querySelectorAll('.zone').forEach(function(z){z.addEventListener('click',function(e){e.stopPropagation();openZone(this.dataset.zone)})});
+el.zReturn.addEventListener('click',closeZone);
+(function(){var b=document.querySelector('#kk-outro .kk-back');if(b)b.addEventListener('click',exitFinale);})();
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&state.phase==='zone')closeZone()});
+
+function isInteractiveTarget(t){
+  return !!(t&&t.closest&&t.closest('button,input,#choices,#zone-return,#inventory'));
+}
+el.zoneScreen.addEventListener('click',function(e){
+  if(state.phase!=='zone')return;
+  if(Date.now()<suppressAdvanceUntil)return;   
+  if(isInteractiveTarget(e.target))return;
+  playerAdvance();
+});
+
+var DRAG_THRESHOLD=8;          
+var drag=null;                 
+var suppressAdvanceUntil=0;    
+
+function makeGhost(slot,x,y){
+  var g=document.createElement('div');
+  g.id='drag-ghost';
+  var art=slot.querySelector('.slot-icon');
+  if(art){
+    var im=document.createElement('img');
+    im.src=art.getAttribute('src');
+    g.appendChild(im);
+  }else{
+    g.textContent=slot.dataset.item||'';
+  }
+  document.body.appendChild(g);
+  moveGhost(g,x,y);
+  return g;
+}
+function moveGhost(g,x,y){ g.style.left=x+'px'; g.style.top=y+'px'; }
+
+function unbindDrag(){
+  document.removeEventListener('pointermove',onDragMove);
+  document.removeEventListener('pointerup',endDrag);
+  document.removeEventListener('pointercancel',cancelDrag);
+}
+
+function cancelDrag(){
+  if(!drag)return;
+  var d=drag; drag=null;
+  unbindDrag();
+  if(d.ghost&&d.ghost.parentNode)d.ghost.parentNode.removeChild(d.ghost);
+  document.body.classList.remove('dragging-item');
+}
+function endDrag(e){
+  if(!drag)return;
+  var d=drag; drag=null;
+  unbindDrag();
+  if(d.ghost&&d.ghost.parentNode)d.ghost.parentNode.removeChild(d.ghost);
+  document.body.classList.remove('dragging-item');
+
+  if(!d.moved){ slotClicked(d.slot); return; }        
+
+  var overScene=false;
+  if(e&&state.phase==='zone'){
+    var t=document.elementFromPoint(e.clientX,e.clientY);
+    overScene=!!(t&&!t.closest('#inventory')&&t.closest('#zone-screen'));
+  }
+  suppressAdvanceUntil=Date.now()+400;                 
+  if(overScene)useItemHere(d.item);
+}
+function onDragMove(e){
+  if(!drag)return;
+  if(!drag.moved){
+    if(Math.abs(e.clientX-drag.x0)<DRAG_THRESHOLD&&Math.abs(e.clientY-drag.y0)<DRAG_THRESHOLD)return;
+    drag.moved=true;
+    drag.ghost=makeGhost(drag.slot,e.clientX,e.clientY);
+    document.body.classList.add('dragging-item');
+  }
+  moveGhost(drag.ghost,e.clientX,e.clientY);
+  if(e.cancelable)e.preventDefault();
+}
+
+[].forEach.call(document.querySelectorAll('.inv-slot'),function(slot){
+  slot.addEventListener('pointerdown',function(e){
+    var item=slot.dataset.item;
+    if(!item)return;
+    e.stopPropagation();
+    
+    if(e.cancelable)e.preventDefault();
+    if(slot.setPointerCapture){try{slot.setPointerCapture(e.pointerId);}catch(err){}}
+    drag={slot:slot,item:item,ghost:null,moved:false,x0:e.clientX,y0:e.clientY};
+    document.addEventListener('pointermove',onDragMove);
+    document.addEventListener('pointerup',endDrag);
+    document.addEventListener('pointercancel',cancelDrag);
+  });
+  slot.addEventListener('dragstart',function(e){e.preventDefault();});
+  
+  slot.addEventListener('click',function(e){e.stopPropagation();});
+});
+document.getElementById('inventory').style.pointerEvents='auto';
+document.addEventListener('keydown',function(e){
+  if(state.phase!=='zone')return;
+  if(e.key!=='Enter'&&e.key!==' ')return;
+  if(document.activeElement===el.userInput)return;   
+  e.preventDefault();
+  playerAdvance();
+});
+
+var didDrag=false,lt=null,ml=null;
+el.viewport.addEventListener('touchstart',function(e){if(state.phase!=='exploring'||e.touches.length!==1)return;state.dragging=true;didDrag=false;el.world.classList.add('dragging');lt={x:e.touches[0].clientX,y:e.touches[0].clientY}},{passive:true});
+el.viewport.addEventListener('touchmove',function(e){if(!state.dragging||!lt)return;var t=e.touches[0],dx=t.clientX-lt.x,dy=t.clientY-lt.y;if(Math.abs(dx)>3||Math.abs(dy)>3)didDrag=true;state.wo.x+=dx*.8;state.wo.y+=dy*.8;clampOffset();applyWorldTransform();lt={x:t.clientX,y:t.clientY}},{passive:true});
+el.viewport.addEventListener('touchend',function(){state.dragging=false;el.world.classList.remove('dragging');lt=null},{passive:true});
+el.viewport.addEventListener('mousedown',function(e){if(state.phase!=='exploring'||e.button!==0)return;state.dragging=true;didDrag=false;el.world.classList.add('dragging');ml={x:e.clientX,y:e.clientY};e.preventDefault()});
+document.addEventListener('mousemove',function(e){if(!state.dragging||!ml)return;var dx=e.clientX-ml.x,dy=e.clientY-ml.y;if(Math.abs(dx)>3||Math.abs(dy)>3)didDrag=true;state.wo.x+=dx;state.wo.y+=dy;clampOffset();applyWorldTransform();ml={x:e.clientX,y:e.clientY}});
+document.addEventListener('mouseup',function(){state.dragging=false;el.world.classList.remove('dragging');ml=null});
+el.viewport.addEventListener('wheel',function(e){if(state.phase!=='exploring')return;e.preventDefault();state.wo.x-=e.deltaX*.6;state.wo.y-=e.deltaY*.6;clampOffset();applyWorldTransform()},{passive:false});
+document.querySelectorAll('.zone').forEach(function(z){z.addEventListener('click',function(e){if(didDrag){e.stopImmediatePropagation();e.preventDefault();didDrag=false;return}},true)});
+window.addEventListener('resize',function(){state.mobile=window.innerWidth<=900;if(state.phase==='exploring'){clampOffset();applyWorldTransform()}});
+
+(function(){
+  var root=document.getElementById('sun-letter');
+  if(!root){ revealGate(); return; }
+  var stage=root.querySelector('.sl-stage');
+  var source=document.getElementById('sl-narration');
+  var canvas=document.getElementById('sl-text');
+  var camera=document.getElementById('sl-reflection');
+  var begin=document.getElementById('sl-begin');
+  var hint=document.getElementById('sl-hint');
+  var message=document.getElementById('sl-message');
+  var skip=document.getElementById('sl-skip');
+
+  var out=canvas.getContext('2d');
+  var packed=document.createElement('canvas');
+  var W=canvas.width,H=canvas.height;
+  packed.width=W*2; packed.height=H;
+  var reader=packed.getContext('2d',{willReadFrequently:true});
+  var frame=null;
+  var hasVFC=typeof source.requestVideoFrameCallback==='function';
+
+  function draw(){
+    if(source.readyState<2||!out||!reader)return;
+    reader.drawImage(source,0,0,packed.width,packed.height);
+    var colour=reader.getImageData(0,0,W,H);
+    var mask=reader.getImageData(W,0,W,H).data;
+    for(var i=3;i<colour.data.length;i+=4)colour.data[i]=mask[i-3];
+    out.putImageData(colour,0,0);
+  }
+  function cancelDraw(){
+    if(frame===null)return;
+    if(hasVFC)source.cancelVideoFrameCallback(frame); else cancelAnimationFrame(frame);
+    frame=null;
+  }
+  function nextFrame(){
+    frame=null;
+    draw();
+    if(!source.paused&&!source.ended)
+      frame=hasVFC?source.requestVideoFrameCallback(nextFrame):requestAnimationFrame(nextFrame);
+  }
+  source.addEventListener('playing',function(){cancelDraw();nextFrame();offerSkip(4000)});
+  source.addEventListener('pause',cancelDraw);
+  source.addEventListener('ended',function(){cancelDraw();draw()});
+  source.addEventListener('loadeddata',draw);
+  source.addEventListener('seeked',draw);
+
+  var noCamera=false;
+  var stream=null,generation=0,fadeTimer=null,mode='idle';
+  var live=['requesting','starting','ready','revealing','fading'];
+  holdPrefetch();
+  source.addEventListener('canplaythrough',releasePrefetch);
+  setTimeout(releasePrefetch,20000);      
+
+  function setMode(next){ mode=next; stage.dataset.state=next; }
+  
+  var skipTimer=null;
+  function offerSkip(delay){
+    if(root.classList.contains('offer-skip')||skipTimer)return;
+    skipTimer=setTimeout(function(){ root.classList.add('offer-skip'); },delay||0);
+  }
+  function releaseCamera(){
+    clearTimeout(fadeTimer); fadeTimer=null;
+    var previous=stream; stream=null;
+    if(previous)previous.getTracks().forEach(function(t){ t.onended=null; t.stop(); });
+    try{camera.pause();}catch(e){}
+    camera.srcObject=null;
+  }
+  function rest(error){
+    generation+=1;                        
+    try{source.pause();source.currentTime=0;}catch(e){}
+    releaseCamera();
+    setMode(error?'error':'idle');
+    begin.disabled=false;
+    
+    var say=(typeof error==='string')?error:'';
+    message.textContent=say;
+    hint.textContent=error?(say?'Or continue below':''):'Allow your camera to begin';
+    
+    if(error){ skip.textContent='Continue'; offerSkip(0); }
+  }
+  
+  var left=false;
+  function leave(){
+    if(left)return; left=true;
+    cancelDraw();
+    try{source.pause();}catch(e){}
+    releaseCamera();
+    releasePrefetch();
+    root.classList.add('gone');
+    setTimeout(function(){ if(root.parentNode)root.parentNode.removeChild(root); },1600);
+    revealGate();
+  }
+  function finish(){
+    if((!stream&&!noCamera)||(mode!=='revealing'&&mode!=='starting'))return;
+    setMode('fading');
+    root.classList.add('closing');     
+    var ms=matchMedia('(prefers-reduced-motion: reduce)').matches?0:1400;
+    fadeTimer=setTimeout(leave,ms);
+  }
+
+  function playAfterPermission(request){
+    
+    if((!stream&&!noCamera)||generation!==request||document.hidden)return Promise.resolve();
+    setMode('starting');
+    begin.disabled=true;
+    hint.textContent='Starting…';
+    try{source.currentTime=0;}catch(e){}
+    var played=source.play();
+    
+    if(!played||!played.then){ setMode('revealing'); return Promise.resolve(); }
+    return played.then(function(){
+      if(generation!==request||mode!=='starting')return;
+      if(document.hidden){rest();return;}
+      setMode('revealing');
+    },function(error){
+      if(generation!==request)return;
+      if(error&&error.name==='NotAllowedError'){
+        
+        setMode('ready');
+        begin.disabled=false;
+        hint.textContent='Camera allowed. Press play to begin.';
+      }else{
+        rest('The audio couldn’t play. Please try again.');
+      }
+    });
+  }
+
+  function start(){
+    if(mode==='ready')return playAfterPermission(generation);
+    if(live.indexOf(mode)>-1)return;
+    
+    if(noCamera){ message.textContent=''; return playAfterPermission(++generation); }
+    if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+      noCamera=true;
+      rest(true);          
+      return;
+    }
+    var request=++generation;
+    setMode('requesting');
+    message.textContent='';
+    begin.disabled=true;
+    hint.textContent='Allow camera access in your browser';
+    navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:'user'},width:{ideal:720},height:{ideal:1280},aspectRatio:{ideal:9/16},resizeMode:{ideal:'crop-and-scale'}},
+      audio:false
+    }).then(function(acquired){
+      if(generation!==request||document.hidden||mode!=='requesting'){
+        acquired.getTracks().forEach(function(t){t.stop()});
+        return;
+      }
+      stream=acquired;
+      stream.getVideoTracks().forEach(function(t){
+        t.onended=function(){ rest('The camera was disconnected.'); };
+      });
+      camera.srcObject=acquired;
+      camera.muted=true;
+      return camera.play().then(function(){
+        if(generation!==request||mode!=='requesting')return;
+        if(document.hidden){rest();return;}
+        return playAfterPermission(request);
+      });
+    }).catch(function(error){
+      if(generation!==request)return;
+      
+      noCamera=true;
+      rest(true);
+    });
+  }
+
+  source.addEventListener('ended',finish);
+  source.addEventListener('error',function(){
+    
+    if(['starting','ready','revealing'].indexOf(mode)>-1)leave();
+  });
+  begin.addEventListener('click',start);
+  skip.addEventListener('click',leave);
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden&&live.indexOf(mode)>-1)rest();
+  });
+  window.addEventListener('pagehide',function(){ releaseCamera(); });
+  draw();
+})();
+})();
+</script>
+</body>
+</html>

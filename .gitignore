@@ -1,0 +1,10 @@
+.DS_Store
+package-lock.json
+/art
+/audio
+/font
+/icons
+node_modules
+/out
+downloader.py
+version.txt

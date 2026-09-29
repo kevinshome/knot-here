@@ -32,17 +32,19 @@ module.exports = {
       },
     },
     {
-      name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
-      config: {
-        icon: 'images/icon.icns'
-      }
-    },
-    {
       name: '@electron-forge/maker-dmg',
       config: {
-        background: undefined,
-        format: 'ULFO'
+        background: 'images/map.jpg',
+        format: 'ULFO',
+        title: 'knoT here Installer',
+        window: {
+          width: 658,
+          height: 498
+        },
+        contents: [
+          { x: 160, y: 250, type: 'file', path: 'out/knoT here-darwin-arm64/knoT here.app' },
+          { x: 500, y: 250, type: 'link', path: '/Applications' }
+        ]
       }
     },
     {

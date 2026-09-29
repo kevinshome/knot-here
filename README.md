@@ -11,9 +11,13 @@ This repository serves to archive the game in a playable format, and to preserve
 <h2>Installation</h2>
 You can install a pre-built version of the program from the <a href="https://github.com/kevinshome/knot-here/releases">Releases</a> page of this repository.
 <h3>Windows</h3>
-Download the "knot-here-setup.exe" file and run it. This will install the package to your computer, and you should then be able to run it like any other program.
+Download the "setup.exe" file and run it. This will install the package to your computer, and you should then be able to run it like any other program.
 <h3>macOS</h3>
-Download the "knoT Here.app" file, and place it in your "Applications" folder on your computer. You should then be able to run it like any other program.
+
+- M1 and newer macs (post-2020)
+    - Download the "knot-here-setup-arm64.dmg" file. After downloading, open the file and drag the knoT here icon to the Applications folder icon. After this, you can open the game like any other application.
+- Intel macs (pre-2020)
+    - Download the "knot-here-setup-intel-x64.dmg" file. After downloading, open the file and drag the knoT here icon to the Applications folder icon. After this, you can open the game like any other application.
 
 <h2>Building</h2>
 If you would like to build the project from source, you will need the following pre-requisites:

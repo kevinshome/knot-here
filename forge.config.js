@@ -3,6 +3,19 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
+    osxSign: {
+      options: {
+        // Points to an entitlements file containing camera allowances
+        identity: '-',
+        hardenedRuntime: false,
+        gatekeeperAssess: false
+      },
+    // Injects the necessary camera strings directly into the built Info.plist
+    extendInfo: {
+      NSCameraUsageDescription: 'This application requires camera access to capture video.',
+      NSMicrophoneUsageDescription: 'This application requires microphone access.'
+    }
+    },
     asar: true,
   },
   rebuildConfig: {},

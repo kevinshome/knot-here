@@ -1,5 +1,6 @@
 const { app, BrowserWindow, systemPreferences } = require('electron')
 const fs = require('fs');
+if (require('electron-squirrel-startup')) app.quit();
 
 const createWindow = () => {
   const win = new BrowserWindow({

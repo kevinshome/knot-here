@@ -7,13 +7,9 @@ module.exports = {
     name: "knoT here",
     appBundleId: "com.kevinshome.knot-here",
     appVersion: "5.0.1",
-    buildVersion: "Build 2026.29.09",
+    buildVersion: "2026.29.09",
     appCopyright: "Copyright © 2026 Sony Music Entertainment",
-    icon: [
-      'images/KnotHere.icns',
-      'images/icon.ico',
-      'images/icon.png',
-    ],
+    icon: 'images/KnotHere.icns',
     osxSign: {
       options: {
         force: true,
@@ -40,6 +36,13 @@ module.exports = {
       platforms: ['darwin'],
       config: {
         icon: 'images/KnotHere.icns'
+      }
+    },
+    {
+      name: '@electron-forge/maker-dmg',
+      config: {
+        background: undefined,
+        format: 'ULFO'
       }
     },
     {

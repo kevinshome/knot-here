@@ -4,7 +4,7 @@
 </center>
 
 <h2>Description</h2>
-</a href="https://www.knot-here.world">knoT here</a> is a minigame designed by <a href="https://www.instagram.com/kambersss">kambersss</a> to announce the 3rd studio album, "marroW", by American musical artist "Brakence". 
+<a href="https://www.knot-here.world">knoT here</a> is a minigame designed by <a href="https://www.instagram.com/kambersss">kambersss</a> to announce the 3rd studio album, "marroW", by American musical artist "Brakence". 
 <br><br>
 This repository serves to archive the game in a playable format, and to preserve it in case the website ever goes down, as well as for offline play. The game has been re-worked just a tad and packaged as an electron binary to run on the desktop.
 

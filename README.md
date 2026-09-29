@@ -9,7 +9,7 @@
 This repository serves to archive the game in a playable format, and to preserve it in case the website ever goes down, as well as for offline play. The game has been re-worked just a tad and packaged as an electron binary to run on the desktop.
 
 <h2>Installation</h2>
-You can install a pre-built version of the program from the "Packages" page of this repository.
+You can install a pre-built version of the program from the <a href="https://github.com/kevinshome/knot-here/releases">Releases</a> page of this repository.
 <h3>Windows</h3>
 Download the "knot-here-setup.exe" file and run it. This will install the package to your computer, and you should then be able to run it like any other program.
 <h3>macOS</h3>

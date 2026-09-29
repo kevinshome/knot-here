@@ -7,5 +7,4 @@ package-lock.json
 node_modules
 /out
 ddownloader.py
-downloader.py
 version.txt

@@ -1,20 +1,29 @@
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+const { execSync } = require('child_process');
 
 module.exports = {
   packagerConfig: {
+    name: "knoT here",
+    appBundleId: "com.kevinshome.knot-here",
+    appVersion: "5.0.0",
+    buildVersion: "Build 2026.29.09",
+    appCopyright: "Copyright © 2026 Sony Music Entertainment",
+    icon: [
+      'images/KnotHere.icns',
+      'images/icon.ico',
+      'images/icon.png',
+    ],
     osxSign: {
       options: {
-        // Points to an entitlements file containing camera allowances
-        identity: '-',
+        force: true,
         hardenedRuntime: false,
-        gatekeeperAssess: false
+        gatekeeperAssess: false,
       },
-    // Injects the necessary camera strings directly into the built Info.plist
     extendInfo: {
       NSCameraUsageDescription: 'This application requires camera access to capture video.',
-      NSMicrophoneUsageDescription: 'This application requires microphone access.'
-    }
+      NSMicrophoneUsageDescription: 'This application requires microphone access.',
+      }
     },
     asar: true,
   },
@@ -22,19 +31,28 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        icon: 'images/icon.ico'
+      },
     },
     {
       name: '@electron-forge/maker-zip',
       platforms: ['darwin'],
+      config: {
+        icon: 'images/KnotHere.icns'
+      }
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
+      config: {
+        icon: "images/icon.png"
+      },
     },
     {
       name: '@electron-forge/maker-rpm',
-      config: {},
+      config: {
+        icon: "images/icon.png"
+      },
     },
   ],
   plugins: [
@@ -54,4 +72,11 @@ module.exports = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
+  hooks: {
+    postPackage: async (_a,_b) => {
+      if (process.platform === 'darwin') {
+        execSync(`codesign --force --deep --sign - "out/knoT here-darwin-arm64/knot here.app"`);
+      }
+    }
+  }
 };

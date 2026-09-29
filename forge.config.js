@@ -9,7 +9,7 @@ module.exports = {
     appVersion: "5.0.1",
     buildVersion: "2026.29.09",
     appCopyright: "Copyright © 2026 Sony Music Entertainment",
-    icon: 'images/KnotHere.icns',
+    icon: 'images/icon',
     osxSign: {
       options: {
         force: true,
@@ -35,7 +35,7 @@ module.exports = {
       name: '@electron-forge/maker-zip',
       platforms: ['darwin'],
       config: {
-        icon: 'images/KnotHere.icns'
+        icon: 'images/icon.icns'
       }
     },
     {

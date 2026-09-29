@@ -5,7 +5,9 @@ if (require('electron-squirrel-startup')) app.quit();
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 1200,
-    height: 1500
+    height: 1500,
+    show: false,
+    //fullscreen: true, # TODO: ONLY impl AFTER IN-GAME EXIT ADDED
   })
 
   win.setTitle('....knoT here..')
@@ -14,6 +16,8 @@ const createWindow = () => {
   } else {
     win.loadFile('nofiles.html')
   }
+
+  win.show();
 }
 
 app.whenReady().then(async () => {
